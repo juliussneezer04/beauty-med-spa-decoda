@@ -64,7 +64,7 @@ export const AppointmentsCard = memo(function AppointmentsCard() {
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
       <h2 className="mb-6 text-xl font-semibold text-gray-900">
-        Appointment Patterns
+        Appointment Statistics
       </h2>
       <div className="grid gap-8 md:grid-cols-2">
         {/* Status Distribution */}
