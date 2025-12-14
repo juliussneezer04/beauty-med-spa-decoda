@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
-import { calculateAge } from "@/lib/utils";
+import { calculateAge, getSourceColorClasses } from "@/lib/utils";
 import { usePatients } from "@/hooks/use-patients";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -274,8 +274,18 @@ export default function PatientsPage() {
                         {patient.email}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium capitalize text-blue-700">
-                          {patient.source}
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${getSourceColorClasses(
+                            patient.source
+                          )}`}
+                        >
+                          {patient.source
+                            .split(/[\s-_]/)
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() + word.slice(1)
+                            )
+                            .join(" ")}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-gray-600">

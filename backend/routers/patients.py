@@ -51,6 +51,8 @@ def get_patients(
     Get a paginated list of patients with optional filtering and sorting.
     Uses cursor-based pagination for efficient large dataset handling.
     """
+
+    print(f"search: {search}")
     # Base query
     query = db.query(Patient)
 

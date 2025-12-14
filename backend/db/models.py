@@ -56,13 +56,13 @@ class Patient(Base):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     first_name: Mapped[str] = mapped_column(String)
     last_name: Mapped[str] = mapped_column(String)
-    date_of_birth: Mapped[datetime] = mapped_column(DateTime, index=True)
-    gender: Mapped[GenderEnum] = mapped_column(Enum(GenderEnum), index=True)
+    date_of_birth: Mapped[datetime] = mapped_column(DateTime)
+    gender: Mapped[GenderEnum] = mapped_column(Enum(GenderEnum))
     address: Mapped[str] = mapped_column(String)
     phone: Mapped[str] = mapped_column(String)
     email: Mapped[str] = mapped_column(String)
-    source: Mapped[SourceEnum] = mapped_column(Enum(SourceEnum), index=True)
-    created_date: Mapped[datetime] = mapped_column(DateTime, index=True)
+    source: Mapped[SourceEnum] = mapped_column(Enum(SourceEnum))
+    created_date: Mapped[datetime] = mapped_column(DateTime)
 
     # Relationships
     appointments: Mapped[List["Appointment"]] = relationship(
@@ -161,9 +161,11 @@ class Appointment(Base):
     __tablename__ = "appointment"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
-    patient_id: Mapped[str] = mapped_column(ForeignKey("patient.id"), index=True)
-    status: Mapped[AppointmentStatusEnum] = mapped_column(Enum(AppointmentStatusEnum), index=True)
-    created_date: Mapped[datetime] = mapped_column(DateTime, index=True)
+    patient_id: Mapped[str] = mapped_column(ForeignKey("patient.id"))
+    status: Mapped[AppointmentStatusEnum] = mapped_column(
+        Enum(AppointmentStatusEnum), index=True
+    )
+    created_date: Mapped[datetime] = mapped_column(DateTime)
 
     # Relationships
     patient: Mapped["Patient"] = relationship(back_populates="appointments")
@@ -193,18 +195,14 @@ class AppointmentService(Base):
     """
 
     __tablename__ = "appointment_service"
-    __table_args__ = (
-        # Composite indexes for common analytics queries
-        Index("ix_appointment_service_provider_appointment", "provider_id", "appointment_id"),
-        Index("ix_appointment_service_service_appointment", "service_id", "appointment_id"),
-    )
+    __table_args__ = ()
 
     appointment_id: Mapped[str] = mapped_column(
         ForeignKey("appointment.id"), primary_key=True
     )
     service_id: Mapped[str] = mapped_column(ForeignKey("service.id"), primary_key=True)
-    provider_id: Mapped[str] = mapped_column(ForeignKey("provider.id"), index=True)
-    start: Mapped[datetime] = mapped_column(DateTime, index=True)
+    provider_id: Mapped[str] = mapped_column(ForeignKey("provider.id"))
+    start: Mapped[datetime] = mapped_column(DateTime)
     end: Mapped[datetime] = mapped_column(DateTime)
 
     # Relationships
@@ -236,24 +234,23 @@ class Payment(Base):
     __tablename__ = "payment"
     __table_args__ = (
         # Composite indexes for common analytics queries
-        Index("ix_payment_status_provider", "status", "provider_id"),
-        Index("ix_payment_status_service", "status", "service_id"),
-        Index("ix_payment_status_amount", "status", "amount"),
     )
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
-    patient_id: Mapped[str] = mapped_column(ForeignKey("patient.id"), index=True)
-    appointment_id: Mapped[str] = mapped_column(ForeignKey("appointment.id"), index=True)
-    provider_id: Mapped[str] = mapped_column(ForeignKey("provider.id"), index=True)
-    service_id: Mapped[str] = mapped_column(ForeignKey("service.id"), index=True)
+    patient_id: Mapped[str] = mapped_column(ForeignKey("patient.id"))
+    appointment_id: Mapped[str] = mapped_column(
+        ForeignKey("appointment.id"), index=True
+    )
+    provider_id: Mapped[str] = mapped_column(ForeignKey("provider.id"))
+    service_id: Mapped[str] = mapped_column(ForeignKey("service.id"))
     amount: Mapped[int] = mapped_column(Integer)  # Amount in cents
-    date: Mapped[datetime] = mapped_column(DateTime, index=True)
+    date: Mapped[datetime] = mapped_column(DateTime)
     method: Mapped[PaymentMethodEnum] = mapped_column(Enum(PaymentMethodEnum))
-    status: Mapped[PaymentStatusEnum] = mapped_column(Enum(PaymentStatusEnum), index=True)
+    status: Mapped[PaymentStatusEnum] = mapped_column(Enum(PaymentStatusEnum))
     created_date: Mapped[datetime] = mapped_column(DateTime)
 
     # Relationships
-    patient: Mapped["Patient"] = relationship(back_populates="payments")
+    patient: Mapped["Patient"] = relationship(back_populates="payments", cascade="")
     appointment: Mapped["Appointment"] = relationship(back_populates="payments")
     provider: Mapped["Provider"] = relationship(back_populates="payments")
     service: Mapped["Service"] = relationship(back_populates="payments")

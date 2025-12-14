@@ -3,7 +3,7 @@
 from datetime import datetime, date
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, case
 
 from db.session import get_db
 from db.models import (
@@ -48,20 +48,76 @@ def get_patient_analytics(db: Session = Depends(get_db)):
         "65+": (65, 200),
     }
 
-    age_distribution = {}
-    for range_name, (min_age, max_age) in age_ranges.items():
-        max_birth_date = datetime(today.year - min_age, today.month, today.day)
-        min_birth_date = datetime(today.year - max_age - 1, today.month, today.day)
+    # Build CASE statement for age ranges
+    age_case = case(
+        (
+            (Patient.date_of_birth <= datetime(today.year - 0, today.month, today.day))
+            & (
+                Patient.date_of_birth
+                > datetime(today.year - 17 - 1, today.month, today.day)
+            ),
+            "0-17",
+        ),
+        (
+            (Patient.date_of_birth <= datetime(today.year - 18, today.month, today.day))
+            & (
+                Patient.date_of_birth
+                > datetime(today.year - 24 - 1, today.month, today.day)
+            ),
+            "18-24",
+        ),
+        (
+            (Patient.date_of_birth <= datetime(today.year - 25, today.month, today.day))
+            & (
+                Patient.date_of_birth
+                > datetime(today.year - 34 - 1, today.month, today.day)
+            ),
+            "25-34",
+        ),
+        (
+            (Patient.date_of_birth <= datetime(today.year - 35, today.month, today.day))
+            & (
+                Patient.date_of_birth
+                > datetime(today.year - 44 - 1, today.month, today.day)
+            ),
+            "35-44",
+        ),
+        (
+            (Patient.date_of_birth <= datetime(today.year - 45, today.month, today.day))
+            & (
+                Patient.date_of_birth
+                > datetime(today.year - 54 - 1, today.month, today.day)
+            ),
+            "45-54",
+        ),
+        (
+            (Patient.date_of_birth <= datetime(today.year - 55, today.month, today.day))
+            & (
+                Patient.date_of_birth
+                > datetime(today.year - 64 - 1, today.month, today.day)
+            ),
+            "55-64",
+        ),
+        (
+            Patient.date_of_birth <= datetime(today.year - 65, today.month, today.day),
+            "65+",
+        ),
+        else_=None,
+    )
 
-        count = (
-            db.query(func.count(Patient.id))
-            .filter(
-                Patient.date_of_birth <= max_birth_date,
-                Patient.date_of_birth > min_birth_date,
-            )
-            .scalar()
-        )
-        age_distribution[range_name] = count
+    # Single query to get all age distribution counts
+    age_counts = (
+        db.query(age_case.label("age_range"), func.count(Patient.id))
+        .filter(Patient.date_of_birth.isnot(None))
+        .group_by(age_case)
+        .all()
+    )
+
+    # Initialize all ranges to 0, then update with actual counts
+    age_distribution = {range_name: 0 for range_name in age_ranges.keys()}
+    age_distribution.update(
+        {range_name: count for range_name, count in age_counts if range_name}
+    )
 
     # Source distribution
     source_counts = (
