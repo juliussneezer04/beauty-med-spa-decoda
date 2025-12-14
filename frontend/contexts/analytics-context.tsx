@@ -142,6 +142,10 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
 
       const hasCachedData = cachedPatients !== null && cachedBusiness !== null;
 
+      // Always fetch fresh data in background to keep cache updated
+      // Don't show loading if we have cached data (silent refresh)
+      refresh(!hasCachedData);
+
       // Batch state updates using startTransition to avoid cascading renders
       startTransition(() => {
         if (cachedPatients) {
@@ -151,10 +155,6 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
           setBusiness({ data: cachedBusiness, loading: false, error: null });
         }
       });
-
-      // Always fetch fresh data in background to keep cache updated
-      // Don't show loading if we have cached data (silent refresh)
-      refresh(!hasCachedData);
     }
     loadData();
   }, [refresh]);

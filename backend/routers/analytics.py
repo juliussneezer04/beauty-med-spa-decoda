@@ -45,7 +45,8 @@ def get_patient_analytics(db: Session = Depends(get_db)):
         "35-44": (35, 44),
         "45-54": (45, 54),
         "55-64": (55, 64),
-        "65+": (65, 200),
+        "65-75": (65, 75),
+        "75+": (75, None),
     }
 
     # Build CASE statement for age ranges
@@ -99,8 +100,16 @@ def get_patient_analytics(db: Session = Depends(get_db)):
             "55-64",
         ),
         (
-            Patient.date_of_birth <= datetime(today.year - 65, today.month, today.day),
-            "65+",
+            (Patient.date_of_birth <= datetime(today.year - 65, today.month, today.day))
+            & (
+                Patient.date_of_birth
+                > datetime(today.year - 75 - 1, today.month, today.day)
+            ),
+            "65-75",
+        ),
+        (
+            Patient.date_of_birth <= datetime(today.year - 75, today.month, today.day),
+            "75+",
         ),
         else_=None,
     )
