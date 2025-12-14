@@ -2,11 +2,12 @@
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, and_
 
 from db.session import get_db
 from db.models import Provider, AppointmentService, Payment
 from schemas.provider import ProviderResponse, ProviderListResponse
+from utils import encode_cursor, decode_cursor
 
 router = APIRouter(prefix="/api/providers", tags=["providers"])
 
@@ -20,6 +21,7 @@ def get_providers(
 ):
     """
     Get a paginated list of providers with appointment counts and revenue.
+    Uses cursor-based pagination.
     """
     # Subquery for appointment count per provider
     appointment_count_subq = (
@@ -74,19 +76,33 @@ def get_providers(
     # Get total count
     total = query.count()
 
-    # Apply sorting (by appointment count descending)
+    # Apply cursor-based pagination
+    # Sorting by appointment_count DESC, then id ASC for tie-breaking
+    if cursor:
+        cursor_data = decode_cursor(cursor)
+        if cursor_data:
+            cursor_count = cursor_data["appointment_count"]
+            cursor_id = cursor_data["id"]
+
+            # For descending appointment_count:
+            # (count < cursor_count) OR (count = cursor_count AND id > cursor_id)
+            query = query.filter(
+                or_(
+                    func.coalesce(appointment_count_subq.c.appointment_count, 0)
+                    < cursor_count,
+                    and_(
+                        func.coalesce(appointment_count_subq.c.appointment_count, 0)
+                        == cursor_count,
+                        Provider.id > cursor_id,
+                    ),
+                )
+            )
+
+    # Apply sorting (by appointment count descending, id ascending for tie-breaking)
     query = query.order_by(
         func.coalesce(appointment_count_subq.c.appointment_count, 0).desc(),
         Provider.id.asc(),
     )
-
-    # Apply cursor-based pagination
-    if cursor:
-        try:
-            offset = int(cursor)
-            query = query.offset(offset)
-        except ValueError:
-            pass
 
     # Fetch one extra to determine if there are more
     results = query.limit(limit + 1).all()
@@ -96,11 +112,13 @@ def get_providers(
     if has_more:
         results = results[:limit]
 
-    # Calculate next cursor
+    # Calculate next cursor from last item
     next_cursor = None
-    if has_more:
-        current_offset = int(cursor) if cursor else 0
-        next_cursor = str(current_offset + limit)
+    if has_more and results:
+        last_provider, last_count, _ = results[-1]
+        next_cursor = encode_cursor(
+            {"appointment_count": last_count, "id": last_provider.id}
+        )
 
     # Transform results
     providers = []

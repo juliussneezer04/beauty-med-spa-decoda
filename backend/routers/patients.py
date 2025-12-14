@@ -1,8 +1,9 @@
 """Patient API routes."""
 
+from datetime import datetime
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import func, or_
+from sqlalchemy import or_, and_
 
 from db.session import get_db
 from db.models import Patient, Appointment, AppointmentService, Service, Payment
@@ -14,6 +15,7 @@ from schemas.patient import (
     ServiceResponse,
     PaymentResponse,
 )
+from utils import encode_cursor, decode_cursor
 
 router = APIRouter(prefix="/api/patients", tags=["patients"])
 
@@ -75,22 +77,44 @@ def get_patients(
     # Get total count (before pagination)
     total = query.count()
 
-    # Apply sorting
+    # Get sort column
     sort_column = getattr(Patient, sortBy, Patient.created_date)
-    if sortOrder == "desc":
-        query = query.order_by(sort_column.desc(), Patient.id.desc())
-    else:
-        query = query.order_by(sort_column.asc(), Patient.id.asc())
+    is_desc = sortOrder == "desc"
 
     # Apply cursor-based pagination
     if cursor:
-        # Cursor is the last seen patient ID
-        # For simplicity, we use offset-based cursor (cursor = offset as string)
-        try:
-            offset = int(cursor)
-            query = query.offset(offset)
-        except ValueError:
-            pass
+        cursor_data = decode_cursor(cursor)
+        if cursor_data:
+            cursor_sort_value = cursor_data["sort_value"]
+            cursor_id = cursor_data["id"]
+
+            # For datetime fields, parse the ISO string back
+            if sortBy in ["created_date", "date_of_birth"]:
+                cursor_sort_value = datetime.fromisoformat(cursor_sort_value)
+
+            # Build cursor condition: (sort_value, id) > (cursor_sort_value, cursor_id)
+            # For descending: (sort_value < cursor_sort_value) OR (sort_value = cursor_sort_value AND id < cursor_id)
+            # For ascending: (sort_value > cursor_sort_value) OR (sort_value = cursor_sort_value AND id > cursor_id)
+            if is_desc:
+                query = query.filter(
+                    or_(
+                        sort_column < cursor_sort_value,
+                        and_(sort_column == cursor_sort_value, Patient.id < cursor_id),
+                    )
+                )
+            else:
+                query = query.filter(
+                    or_(
+                        sort_column > cursor_sort_value,
+                        and_(sort_column == cursor_sort_value, Patient.id > cursor_id),
+                    )
+                )
+
+    # Apply sorting
+    if is_desc:
+        query = query.order_by(sort_column.desc(), Patient.id.desc())
+    else:
+        query = query.order_by(sort_column.asc(), Patient.id.asc())
 
     # Fetch one extra to determine if there are more
     patients = query.limit(limit + 1).all()
@@ -100,11 +124,16 @@ def get_patients(
     if has_more:
         patients = patients[:limit]
 
-    # Calculate next cursor
+    # Calculate next cursor from last item
     next_cursor = None
-    if has_more:
-        current_offset = int(cursor) if cursor else 0
-        next_cursor = str(current_offset + limit)
+    if has_more and patients:
+        last_patient = patients[-1]
+        last_sort_value = getattr(last_patient, sortBy, last_patient.created_date)
+        if hasattr(last_sort_value, "isoformat"):
+            last_sort_value = last_sort_value.isoformat()
+        next_cursor = encode_cursor(
+            {"sort_value": str(last_sort_value), "id": last_patient.id}
+        )
 
     return PatientListResponse(
         data=[patient_to_response(p) for p in patients],
