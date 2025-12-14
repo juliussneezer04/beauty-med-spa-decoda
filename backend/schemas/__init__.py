@@ -10,13 +10,9 @@ from schemas.patient import (
 )
 from schemas.provider import ProviderResponse, ProviderListResponse
 from schemas.analytics import (
-    DemographicsResponse,
-    SourcesResponse,
-    ServicesAnalyticsResponse,
-    ProvidersAnalyticsResponse,
-    AppointmentsAnalyticsResponse,
     TopServiceResponse,
-    ProviderAnalyticsItem,
+    PatientAnalyticsResponse,
+    BusinessAnalyticsResponse,
 )
 from schemas.common import PaginatedResponse
 
@@ -29,12 +25,8 @@ __all__ = [
     "PaymentResponse",
     "ProviderResponse",
     "ProviderListResponse",
-    "DemographicsResponse",
-    "SourcesResponse",
-    "ServicesAnalyticsResponse",
-    "ProvidersAnalyticsResponse",
-    "AppointmentsAnalyticsResponse",
     "TopServiceResponse",
-    "ProviderAnalyticsItem",
+    "PatientAnalyticsResponse",
+    "BusinessAnalyticsResponse",
     "PaginatedResponse",
 ]

@@ -10,7 +10,6 @@ class ProviderResponse(BaseModel):
     name: str
     email: str
     phone: str
-    specialty: str
     appointmentCount: int
     revenue: int
 
@@ -25,4 +24,3 @@ class ProviderListResponse(BaseModel):
     nextCursor: str | None
     hasMore: bool
     total: int
-

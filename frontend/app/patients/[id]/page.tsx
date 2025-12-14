@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, DollarSign } from "lucide-react";
-import { formatCurrency, calculateAge } from "@/lib/mock-data";
+import { formatCurrency, calculateAge } from "@/lib/utils";
 import { usePatientDetail } from "@/hooks/use-patient-detail";
 
 export default function PatientDetailPage() {

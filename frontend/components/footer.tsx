@@ -11,10 +11,19 @@ export function Footer() {
         <span className="text-red-500">❤️</span>
         <span>by</span>
         <Link
+          href="https://vishnu.is-a.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity hover:underline"
+        >
+          Vishnu Sundaresan
+        </Link>
+        <span>for</span>
+        <Link
           href="https://www.decodahealth.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 hover:opacity-50 transition-opacity"
         >
           {/* Light mode icon - shown by default, hidden in dark mode */}
           <Image

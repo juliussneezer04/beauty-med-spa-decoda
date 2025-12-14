@@ -18,19 +18,12 @@ export type PatientDetailResponse =
 export type ProviderListResponse =
   components["schemas"]["ProviderListResponse"];
 
-// Analytics types
-export type DemographicsResponse =
-  components["schemas"]["DemographicsResponse"];
-export type SourcesResponse = components["schemas"]["SourcesResponse"];
-export type ServicesAnalyticsResponse =
-  components["schemas"]["ServicesAnalyticsResponse"];
-export type ProvidersAnalyticsResponse =
-  components["schemas"]["ProvidersAnalyticsResponse"];
-export type AppointmentsAnalyticsResponse =
-  components["schemas"]["AppointmentsAnalyticsResponse"];
+// Analytics types (from generated OpenAPI types)
 export type TopServiceResponse = components["schemas"]["TopServiceResponse"];
-export type ProviderAnalyticsItem =
-  components["schemas"]["ProviderAnalyticsItem"];
+export type PatientAnalyticsResponse =
+  components["schemas"]["PatientAnalyticsResponse"];
+export type BusinessAnalyticsResponse =
+  components["schemas"]["BusinessAnalyticsResponse"];
 
 // Generic paginated response (for backwards compatibility)
 export interface PaginatedResponse<T> {

@@ -28,7 +28,10 @@ export function centsToDollars(cents: number): number {
 
 // Format currency
 export function formatCurrency(cents: number): string {
-  return `$${centsToDollars(cents).toFixed(2)}`;
+  return `$${centsToDollars(cents).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
 // Calculate age from date of birth

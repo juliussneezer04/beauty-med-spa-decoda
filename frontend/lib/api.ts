@@ -7,11 +7,8 @@ import type {
   PatientListResponse,
   PatientDetailResponse,
   ProviderListResponse,
-  DemographicsResponse,
-  SourcesResponse,
-  ServicesAnalyticsResponse,
-  ProvidersAnalyticsResponse,
-  AppointmentsAnalyticsResponse,
+  PatientAnalyticsResponse,
+  BusinessAnalyticsResponse,
 } from "@/lib/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
@@ -103,25 +100,19 @@ export async function getProviders(
 }
 
 // ============================================================================
-// Analytics API
+// Analytics API (2 consolidated endpoints)
 // ============================================================================
 
-export async function getAnalyticsDemographics(): Promise<DemographicsResponse> {
-  return apiFetch<DemographicsResponse>("/api/analytics/demographics");
+/**
+ * Get consolidated patient analytics (demographics + sources).
+ */
+export async function getPatientAnalytics(): Promise<PatientAnalyticsResponse> {
+  return apiFetch<PatientAnalyticsResponse>("/api/analytics/patients");
 }
 
-export async function getAnalyticsSources(): Promise<SourcesResponse> {
-  return apiFetch<SourcesResponse>("/api/analytics/sources");
-}
-
-export async function getAnalyticsServices(): Promise<ServicesAnalyticsResponse> {
-  return apiFetch<ServicesAnalyticsResponse>("/api/analytics/services");
-}
-
-export async function getAnalyticsProviders(): Promise<ProvidersAnalyticsResponse> {
-  return apiFetch<ProvidersAnalyticsResponse>("/api/analytics/providers");
-}
-
-export async function getAnalyticsAppointments(): Promise<AppointmentsAnalyticsResponse> {
-  return apiFetch<AppointmentsAnalyticsResponse>("/api/analytics/appointments");
+/**
+ * Get consolidated business analytics (services + appointments).
+ */
+export async function getBusinessAnalytics(): Promise<BusinessAnalyticsResponse> {
+  return apiFetch<BusinessAnalyticsResponse>("/api/analytics/business");
 }

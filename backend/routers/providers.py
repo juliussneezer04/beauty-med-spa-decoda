@@ -129,7 +129,6 @@ def get_providers(
                 name=f"{provider.first_name} {provider.last_name}",
                 email=provider.email,
                 phone=provider.phone,
-                specialty="General",  # Default since not in model
                 appointmentCount=appointment_count,
                 revenue=revenue,
             )

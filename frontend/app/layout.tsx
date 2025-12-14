@@ -68,7 +68,7 @@ export default function RootLayout({
 
         {/* Main content area */}
         <main className="pt-16 flex-1 p-8">
-          <div className="mx-auto max-w-7xl">{children}</div>
+          <div className="mx-auto my-4 max-w-7xl">{children}</div>
         </main>
 
         <Footer />

@@ -4,17 +4,6 @@ import { formatCurrency, formatNumberShort } from "@/lib/utils";
 import { useProviders } from "@/hooks/use-providers";
 import { Search, User, Mail, Phone, TrendingUp, Calendar } from "lucide-react";
 
-const COLORS = [
-  "#0ea5e9",
-  "#a855f7",
-  "#f59e0b",
-  "#10b981",
-  "#ef4444",
-  "#8b5cf6",
-  "#06b6d4",
-  "#ec4899",
-];
-
 export default function ProvidersPage() {
   const {
     providers,
@@ -53,7 +42,7 @@ export default function ProvidersPage() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by name or specialty..."
+            placeholder="Search by name"
             className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -88,15 +77,6 @@ export default function ProvidersPage() {
                       <h3 className="font-semibold text-gray-900">
                         {provider.name}
                       </h3>
-                      <span
-                        className="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                        style={{
-                          backgroundColor: COLORS[index % COLORS.length] + "20",
-                          color: COLORS[index % COLORS.length],
-                        }}
-                      >
-                        {provider.specialty}
-                      </span>
                     </div>
                   </div>
                 </div>
