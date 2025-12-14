@@ -88,9 +88,7 @@ export function useProviders(
         setCursor(data.nextCursor);
         setTotal(data.total);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to fetch providers"
-        );
+        setError(err instanceof Error ? err.message : "Couldn't get providers");
       } finally {
         setLoading(false);
         setLoadingMore(false);

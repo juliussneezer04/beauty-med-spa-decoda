@@ -34,7 +34,7 @@ export function usePatientDetail(patientId: string): UsePatientDetailReturn {
       setData(result);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to fetch patient details"
+        err instanceof Error ? err.message : "Couldn't get patient details"
       );
       setData(null);
     } finally {

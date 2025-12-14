@@ -26,7 +26,15 @@ To construct the database, run the following command:
 python scripts/create_tables.py
 ```
 
-This will create all the tables in the database.
+This will create all the tables in the database with all indexes defined in the models.
+
+**Important:** If tables already exist, `create_tables.py` will not modify them. To ensure all indexes from your models are present in existing tables, run:
+
+```bash
+python scripts/add_indexes.py
+```
+
+This script will check for missing indexes and create any that are defined in your models but missing from the database.
 
 Then, run the following command:
 

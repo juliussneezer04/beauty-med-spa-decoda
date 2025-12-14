@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import { calculateAge } from "@/lib/utils";
 import { usePatients } from "@/hooks/use-patients";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SortIconProps {
   column: string;
@@ -81,7 +82,7 @@ export default function PatientsPage() {
           <select
             value={genderFilter}
             onChange={(e) => setGenderFilter(e.target.value)}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="rounded-xl border border-gray-200 bg-white px-4 pr-8 py-2 text-sm focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
           >
             <option value="">All Genders</option>
             <option value="male">Male</option>
@@ -93,7 +94,7 @@ export default function PatientsPage() {
           <select
             value={sourceFilter}
             onChange={(e) => setSourceFilter(e.target.value)}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="rounded-xl border border-gray-200 bg-white px-4 pr-8 py-2 text-sm focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
           >
             <option value="">All Sources</option>
             <option value="in_person">In Person</option>
@@ -109,8 +110,61 @@ export default function PatientsPage() {
       {/* Table */}
       <div className="rounded-2xl border border-blue-100 bg-white/70 shadow-sm backdrop-blur-sm">
         {loading && patients.length === 0 ? (
-          <div className="flex h-64 items-center justify-center">
-            <div className="text-lg text-gray-500">Loading patients...</div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                  <th className="px-6 py-4">
+                    <Skeleton className="h-4 w-16" />
+                  </th>
+                  <th className="px-6 py-4">
+                    <Skeleton className="h-4 w-12" />
+                  </th>
+                  <th className="px-6 py-4">
+                    <Skeleton className="h-4 w-16" />
+                  </th>
+                  <th className="px-6 py-4">
+                    <Skeleton className="h-4 w-16" />
+                  </th>
+                  <th className="px-6 py-4">
+                    <Skeleton className="h-4 w-16" />
+                  </th>
+                  <th className="px-6 py-4">
+                    <Skeleton className="h-4 w-20" />
+                  </th>
+                  <th className="px-6 py-4">
+                    <Skeleton className="h-4 w-20" />
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {[...Array(10)].map((_, index) => (
+                  <tr key={index}>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-5 w-32" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-5 w-12" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-5 w-16" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-5 w-28" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-5 w-40" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-6 w-20 rounded-full" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-5 w-24" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : patients.length === 0 ? (
           <div className="flex h-64 items-center justify-center">

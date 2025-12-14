@@ -52,9 +52,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
         data: null,
         loading: false,
         error:
-          err instanceof Error
-            ? err.message
-            : "Failed to fetch patient analytics",
+          err instanceof Error ? err.message : "Couldn't get patient analytics",
       });
     }
   }, []);
@@ -71,7 +69,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
         error:
           err instanceof Error
             ? err.message
-            : "Failed to fetch business analytics",
+            : "Couldn't get business analytics",
       });
     }
   }, []);
