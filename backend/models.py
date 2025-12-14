@@ -7,7 +7,7 @@ class Patient(BaseModel):
     """
     Represents a patient in the system.
 
-    Patients can have multiple appointments and payments associated with them.
+    Patients has a one-to-many relationship with Appointments and Payments.
     The patient_id field is used as a foreign key in other models.
     """
 
@@ -29,7 +29,8 @@ class Payment(BaseModel):
     """
     Represents a payment transaction for a appointment.
 
-    Payments are linked to appointments, patients, providers, and services.
+    Payments has a one-to-many relationship with Patients, Providers, and Services.
+    Payments has an optional one-to-one relationship with Appointments.
     Note: Not all appointments have payments - some appointments may be unpaid.
 
     Important:
@@ -55,7 +56,7 @@ class Provider(BaseModel):
     """
     Represents a provider (doctor, nurse, specialist, etc.).
 
-    Providers can be associated with multiple appointments and services.
+    Providers has a many-to-many relationship with Appointments and Services through AppointmentService.
     The provider_id field is used as a foreign key in other models.
     """
 
@@ -71,7 +72,7 @@ class Appointment(BaseModel):
     """
     Represents a appointment.
 
-    An appointment links a patient to multiple services through AppointmentService.
+    An appointment has a many-to-many relationship with Services through AppointmentService.
     Each service in an appointment can have its own provider - see AppointmentService
     for the full list of services and providers associated with an appointment.
 
@@ -94,7 +95,7 @@ class Appointment(BaseModel):
 
 class AppointmentService(BaseModel):
     """
-    Represents a many-to-many relationship between appointments and services.
+    Represents a many-to-many relationship between Appointments and Services.
 
     This model allows appointments to have multiple services, each with its own
     provider, start time, and end time. For example, an appointment might include
@@ -118,7 +119,7 @@ class Service(BaseModel):
     Represents a service that can be provided.
 
     Services are the billable items in the system. Examples include consultations,
-    tests, procedures, etc. Services are linked to appointments through the
+    tests, procedures, etc. Services have a many-to-many relationship with Appointments through the
     AppointmentService model.
 
     Important:
