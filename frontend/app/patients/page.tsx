@@ -110,7 +110,7 @@ export default function PatientsPage() {
 
       {/* Table */}
       <div className="rounded-2xl border border-blue-100 bg-white/70 shadow-sm backdrop-blur-sm">
-        {loading && patients.length === 0 ? (
+        {loading ? (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
