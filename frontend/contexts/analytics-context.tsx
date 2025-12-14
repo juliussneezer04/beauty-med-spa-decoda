@@ -6,6 +6,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  startTransition,
   type ReactNode,
 } from "react";
 import { getPatientAnalytics, getBusinessAnalytics } from "@/lib/api";
@@ -26,27 +27,64 @@ interface AnalyticsContextValue {
   refresh: () => void;
 }
 
-const initialLoadingState = <T,>(): LoadingState<T> => ({
-  data: null,
-  loading: true,
-  error: null,
-});
+const STORAGE_KEYS = {
+  PATIENTS: "analytics_patients",
+  BUSINESS: "analytics_business",
+} as const;
+
+// Helper functions for localStorage operations
+const loadFromStorage = <T,>(key: string): T | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const item = localStorage.getItem(key);
+    if (!item) return null;
+    return JSON.parse(item) as T;
+  } catch (error) {
+    console.warn(`Failed to load ${key} from localStorage:`, error);
+    return null;
+  }
+};
+
+const saveToStorage = <T,>(key: string, value: T): void => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.warn(`Failed to save ${key} to localStorage:`, error);
+  }
+};
 
 const AnalyticsContext = createContext<AnalyticsContextValue | null>(null);
 
 export function AnalyticsProvider({ children }: { children: ReactNode }) {
+  // Always start with loading state to match server render
   const [patients, setPatients] = useState<
     LoadingState<PatientAnalyticsResponse>
-  >(initialLoadingState());
+  >({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
   const [business, setBusiness] = useState<
     LoadingState<BusinessAnalyticsResponse>
-  >(initialLoadingState());
+  >({
+    data: null,
+    loading: true,
+    error: null,
+  });
 
-  const fetchPatients = useCallback(async () => {
-    setPatients((prev) => ({ ...prev, loading: true, error: null }));
+  const fetchPatients = useCallback(async (showLoading = true) => {
+    setPatients((prev) => ({
+      ...prev,
+      loading: showLoading && prev.data === null,
+      error: null,
+    }));
     try {
       const data = await getPatientAnalytics();
       setPatients({ data, loading: false, error: null });
+      // Persist to localStorage
+      saveToStorage(STORAGE_KEYS.PATIENTS, data);
     } catch (err) {
       setPatients({
         data: null,
@@ -57,11 +95,17 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const fetchBusiness = useCallback(async () => {
-    setBusiness((prev) => ({ ...prev, loading: true, error: null }));
+  const fetchBusiness = useCallback(async (showLoading = true) => {
+    setBusiness((prev) => ({
+      ...prev,
+      loading: showLoading && prev.data === null,
+      error: null,
+    }));
     try {
       const data = await getBusinessAnalytics();
       setBusiness({ data, loading: false, error: null });
+      // Persist to localStorage
+      saveToStorage(STORAGE_KEYS.BUSINESS, data);
     } catch (err) {
       setBusiness({
         data: null,
@@ -74,16 +118,45 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const refresh = useCallback(() => {
-    fetchPatients();
-    fetchBusiness();
-  }, [fetchPatients, fetchBusiness]);
+  const refresh = useCallback(
+    async (showLoading = true) => {
+      await Promise.all([
+        fetchPatients(showLoading),
+        fetchBusiness(showLoading),
+      ]);
+    },
+    [fetchPatients, fetchBusiness]
+  );
 
+  // Load from localStorage and fetch fresh data (client-side only)
+  // This effect syncs React state with localStorage (external system) and fetches fresh data
   useEffect(() => {
-    async function fetchData() {
-      await refresh();
+    async function loadData() {
+      // Load cached data from localStorage first
+      const cachedPatients = loadFromStorage<PatientAnalyticsResponse>(
+        STORAGE_KEYS.PATIENTS
+      );
+      const cachedBusiness = loadFromStorage<BusinessAnalyticsResponse>(
+        STORAGE_KEYS.BUSINESS
+      );
+
+      const hasCachedData = cachedPatients !== null && cachedBusiness !== null;
+
+      // Batch state updates using startTransition to avoid cascading renders
+      startTransition(() => {
+        if (cachedPatients) {
+          setPatients({ data: cachedPatients, loading: false, error: null });
+        }
+        if (cachedBusiness) {
+          setBusiness({ data: cachedBusiness, loading: false, error: null });
+        }
+      });
+
+      // Always fetch fresh data in background to keep cache updated
+      // Don't show loading if we have cached data (silent refresh)
+      refresh(!hasCachedData);
     }
-    fetchData();
+    loadData();
   }, [refresh]);
 
   return (
