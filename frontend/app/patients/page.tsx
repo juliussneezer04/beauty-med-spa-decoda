@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import { calculateAge, getSourceColorClasses } from "@/lib/utils";
 import { usePatients } from "@/hooks/use-patients";
@@ -24,6 +24,7 @@ function SortIcon({ column, sortBy, sortOrder }: SortIconProps) {
 }
 
 export default function PatientsPage() {
+  const router = useRouter();
   const {
     patients,
     total,
@@ -114,27 +115,13 @@ export default function PatientsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
-                  <th className="px-6 py-4">
-                    <Skeleton className="h-4 w-16" />
-                  </th>
-                  <th className="px-6 py-4">
-                    <Skeleton className="h-4 w-12" />
-                  </th>
-                  <th className="px-6 py-4">
-                    <Skeleton className="h-4 w-16" />
-                  </th>
-                  <th className="px-6 py-4">
-                    <Skeleton className="h-4 w-16" />
-                  </th>
-                  <th className="px-6 py-4">
-                    <Skeleton className="h-4 w-16" />
-                  </th>
-                  <th className="px-6 py-4">
-                    <Skeleton className="h-4 w-20" />
-                  </th>
-                  <th className="px-6 py-4">
-                    <Skeleton className="h-4 w-20" />
-                  </th>
+                  <th className="px-6 py-4">Name</th>
+                  <th className="px-6 py-4">Age</th>
+                  <th className="px-6 py-4">Gender</th>
+                  <th className="px-6 py-4">Phone</th>
+                  <th className="px-6 py-4">Email</th>
+                  <th className="px-6 py-4">Source</th>
+                  <th className="px-6 py-4">Created</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -249,15 +236,13 @@ export default function PatientsPage() {
                   {patients.map((patient) => (
                     <tr
                       key={patient.id}
+                      onClick={() => router.push(`/patients/${patient.id}`)}
                       className="cursor-pointer transition-colors hover:bg-blue-50/50"
                     >
                       <td className="px-6 py-4">
-                        <Link
-                          href={`/patients/${patient.id}`}
-                          className="font-medium text-blue-600 hover:text-blue-700"
-                        >
+                        <span className="font-medium text-blue-600">
                           {patient.first_name} {patient.last_name}
-                        </Link>
+                        </span>
                       </td>
                       <td className="px-6 py-4 text-gray-600">
                         {calculateAge(patient.date_of_birth)}

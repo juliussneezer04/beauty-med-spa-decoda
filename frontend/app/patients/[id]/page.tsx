@@ -15,10 +15,13 @@ export default function PatientDetailPage() {
     return (
       <div className="space-y-6">
         {/* Back Button */}
-        <div className="flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4 text-gray-400" />
-          <Skeleton className="h-5 w-32" />
-        </div>
+        <button
+          onClick={() => router.push("/patients")}
+          className="flex items-center gap-2 text-sm text-gray-600 transition-colors hover:text-gray-900 hover:underline"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Patients
+        </button>
 
         {/* Patient Header */}
         <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
@@ -27,27 +30,39 @@ export default function PatientDetailPage() {
               <Skeleton className="h-9 w-64" />
               <Skeleton className="mt-2 h-5 w-40" />
             </div>
-            <Skeleton className="h-7 w-24 rounded-full" />
+            Found us via&nbsp; <Skeleton className="h-7 w-24 rounded-full" />
           </div>
 
           <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_, index) => (
-              <div key={index}>
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="mt-1 h-7 w-24" />
-              </div>
-            ))}
+            <div>
+              <p className="text-sm font-medium text-gray-500">Age</p>
+              <Skeleton className="mt-1 h-7 w-24" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Gender</p>
+              <Skeleton className="mt-1 h-7 w-24" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Phone</p>
+              <Skeleton className="mt-1 h-7 w-24" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Email</p>
+              <Skeleton className="mt-1 h-7 w-24" />
+            </div>
           </div>
 
           <div className="mt-6">
-            <Skeleton className="h-4 w-20" />
+            <p className="text-sm font-medium text-gray-500">Address</p>
             <Skeleton className="mt-1 h-5 w-full max-w-md" />
           </div>
         </div>
 
         {/* Appointments */}
         <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
-          <Skeleton className="mb-6 h-7 w-48" />
+          <h2 className="mb-6 text-xl font-semibold text-gray-900">
+            Appointments
+          </h2>
 
           <div className="space-y-4">
             {[...Array(3)].map((_, index) => (
@@ -67,7 +82,9 @@ export default function PatientDetailPage() {
 
                     {/* Services */}
                     <div className="mt-4">
-                      <Skeleton className="mb-2 h-4 w-20" />
+                      <p className="mb-2 text-sm font-medium text-gray-600">
+                        Services:
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         <Skeleton className="h-6 w-24 rounded-full" />
                         <Skeleton className="h-6 w-28 rounded-full" />
@@ -114,7 +131,7 @@ export default function PatientDetailPage() {
       {/* Back Button */}
       <button
         onClick={() => router.push("/patients")}
-        className="flex items-center gap-2 text-sm text-gray-600 transition-colors hover:text-gray-900"
+        className="flex items-center gap-2 text-sm text-gray-600 transition-colors hover:text-gray-900 hover:underline"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Patients
@@ -129,9 +146,12 @@ export default function PatientDetailPage() {
             </h1>
             <p className="mt-2 text-gray-600">Patient ID: {patient.id}</p>
           </div>
-          <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium capitalize text-blue-700">
-            {patient.source}
-          </span>
+          <div>
+            Found us via&nbsp;
+            <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium capitalize text-blue-700">
+              {patient.source}
+            </span>
+          </div>
         </div>
 
         <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
