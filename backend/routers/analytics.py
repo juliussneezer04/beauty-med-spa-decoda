@@ -196,13 +196,15 @@ def get_business_analytics(db: Session = Depends(get_db)):
         .scalar()
     )
 
-    # Total payments count
-    total_payments = (
-        db.query(func.count(Payment.id)).filter(Payment.status == "paid").scalar()
+    # Total customers count
+    total_customers = (
+        db.query(func.count(func.distinct(Payment.patient_id)))
+        .filter(Payment.status == "paid")
+        .scalar()
     )
 
-    # Average payment
-    average_payment = total_revenue // total_payments if total_payments > 0 else 0
+    # Average payment per
+    average_payment = total_revenue // total_customers if total_customers > 0 else 0
 
     # Status distribution
     status_counts = (
@@ -237,7 +239,7 @@ def get_business_analytics(db: Session = Depends(get_db)):
         topServices=top_services,
         totalRevenue=total_revenue,
         averagePayment=average_payment,
-        totalPayments=total_payments,
+        totalCustomers=total_customers,
         statusDistribution=status_distribution,
         avgServicesPerAppointment=avg_services_per_appointment,
         appointmentsByDay=appointments_by_day_dict,

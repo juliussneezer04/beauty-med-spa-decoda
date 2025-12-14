@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   ZAxis,
 } from "recharts";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatNumberShort } from "@/lib/utils";
 import { useBusinessAnalytics } from "@/contexts/analytics-context";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -151,15 +151,18 @@ export const ServicesCard = memo(function ServicesCard() {
         </ResponsiveContainer>
         <p className="mt-2 text-center text-bold text-xs text-gray-500">
           Insight: The most popular service is <b>{topServiceByCount.name}</b>{" "}
-          with <b>{topServiceByCount.count}</b> bookings and{" "}
-          <b>{formatCurrency(topServiceByCount.revenue)}</b> in revenue
+          with <b>~{formatNumberShort(topServiceByCount.count)}</b> bookings
           {isSameService ? (
-            <Fragment></Fragment>
+            <Fragment>
+              and <b>{formatCurrency(topServiceByCount.revenue, true)}</b> in
+              revenue
+            </Fragment>
           ) : (
             <Fragment>
               , while the most profitable service is{" "}
               <b>{topServiceByRevenue.name}</b> with{" "}
-              <b>{formatCurrency(topServiceByRevenue.revenue)}</b> in revenue.
+              <b>~{formatCurrency(topServiceByRevenue.revenue, true)}</b> in
+              revenue.
             </Fragment>
           )}
           .

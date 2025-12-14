@@ -76,7 +76,6 @@ export interface paths {
         /**
          * Get Patient Analytics
          * @description Get consolidated patient analytics including demographics and sources.
-         *     This combines the /demographics and /sources endpoints into a single request.
          */
         get: operations["get_patient_analytics_api_analytics_patients_get"];
         put?: never;
@@ -97,121 +96,8 @@ export interface paths {
         /**
          * Get Business Analytics
          * @description Get consolidated business analytics including services and appointments.
-         *     This combines the /services and /appointments endpoints into a single request.
          */
         get: operations["get_business_analytics_api_analytics_business_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/analytics/providers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Providers Analytics
-         * @description Get provider performance analytics including appointment counts and revenue.
-         */
-        get: operations["get_providers_analytics_api_analytics_providers_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/analytics/demographics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Demographics
-         * @description Get patient demographics analytics including total patients,
-         *     gender distribution, and age distribution.
-         *
-         *     DEPRECATED: Use /api/analytics/patients instead for better performance.
-         */
-        get: operations["get_demographics_api_analytics_demographics_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/analytics/sources": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Sources
-         * @description Get patient source analytics including source distribution
-         *     and patients by month.
-         *
-         *     DEPRECATED: Use /api/analytics/patients instead for better performance.
-         */
-        get: operations["get_sources_api_analytics_sources_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/analytics/services": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Services Analytics
-         * @description Get services analytics including top services, total revenue,
-         *     average payment, and total payments.
-         *
-         *     DEPRECATED: Use /api/analytics/business instead for better performance.
-         */
-        get: operations["get_services_analytics_api_analytics_services_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/analytics/appointments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Appointments Analytics
-         * @description Get appointments analytics including status distribution,
-         *     average services per appointment, and appointments by day.
-         *
-         *     DEPRECATED: Use /api/analytics/business instead for better performance.
-         */
-        get: operations["get_appointments_analytics_api_analytics_appointments_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -282,24 +168,6 @@ export interface components {
             payment: components["schemas"]["PaymentResponse"] | null;
         };
         /**
-         * AppointmentsAnalyticsResponse
-         * @description Schema for appointments analytics.
-         */
-        AppointmentsAnalyticsResponse: {
-            /** Statusdistribution */
-            statusDistribution: {
-                [key: string]: number;
-            };
-            /** Avgservicesperappointment */
-            avgServicesPerAppointment: string;
-            /** Appointmentsbyday */
-            appointmentsByDay: {
-                [key: string]: number;
-            };
-            /** Totalappointments */
-            totalAppointments: number;
-        };
-        /**
          * BusinessAnalyticsResponse
          * @description Consolidated schema for business analytics (services + appointments).
          */
@@ -310,8 +178,8 @@ export interface components {
             totalRevenue: number;
             /** Averagepayment */
             averagePayment: number;
-            /** Totalpayments */
-            totalPayments: number;
+            /** Totalcustomers */
+            totalCustomers: number;
             /** Statusdistribution */
             statusDistribution: {
                 [key: string]: number;
@@ -324,22 +192,6 @@ export interface components {
             };
             /** Totalappointments */
             totalAppointments: number;
-        };
-        /**
-         * DemographicsResponse
-         * @description Schema for demographics analytics.
-         */
-        DemographicsResponse: {
-            /** Totalpatients */
-            totalPatients: number;
-            /** Genderdistribution */
-            genderDistribution: {
-                [key: string]: number;
-            };
-            /** Agedistribution */
-            ageDistribution: {
-                [key: string]: number;
-            };
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -436,20 +288,6 @@ export interface components {
             created_date: string;
         };
         /**
-         * ProviderAnalyticsItem
-         * @description Schema for provider analytics item.
-         */
-        ProviderAnalyticsItem: {
-            /** Id */
-            id: string;
-            /** Name */
-            name: string;
-            /** Appointmentcount */
-            appointmentCount: number;
-            /** Revenue */
-            revenue: number;
-        };
-        /**
          * ProviderListResponse
          * @description Schema for paginated provider list.
          */
@@ -482,14 +320,6 @@ export interface components {
             revenue: number;
         };
         /**
-         * ProvidersAnalyticsResponse
-         * @description Schema for providers analytics.
-         */
-        ProvidersAnalyticsResponse: {
-            /** Providers */
-            providers: components["schemas"]["ProviderAnalyticsItem"][];
-        };
-        /**
          * ServiceResponse
          * @description Schema for service data.
          */
@@ -506,34 +336,6 @@ export interface components {
             duration: number;
             /** Created Date */
             created_date: string;
-        };
-        /**
-         * ServicesAnalyticsResponse
-         * @description Schema for services analytics.
-         */
-        ServicesAnalyticsResponse: {
-            /** Topservices */
-            topServices: components["schemas"]["TopServiceResponse"][];
-            /** Totalrevenue */
-            totalRevenue: number;
-            /** Averagepayment */
-            averagePayment: number;
-            /** Totalpayments */
-            totalPayments: number;
-        };
-        /**
-         * SourcesResponse
-         * @description Schema for patient sources analytics.
-         */
-        SourcesResponse: {
-            /** Sourcedistribution */
-            sourceDistribution: {
-                [key: string]: number;
-            };
-            /** Patientsbymonth */
-            patientsByMonth: {
-                [key: string]: number;
-            };
         };
         /**
          * TopServiceResponse
@@ -714,106 +516,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BusinessAnalyticsResponse"];
-                };
-            };
-        };
-    };
-    get_providers_analytics_api_analytics_providers_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProvidersAnalyticsResponse"];
-                };
-            };
-        };
-    };
-    get_demographics_api_analytics_demographics_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DemographicsResponse"];
-                };
-            };
-        };
-    };
-    get_sources_api_analytics_sources_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SourcesResponse"];
-                };
-            };
-        };
-    };
-    get_services_analytics_api_analytics_services_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ServicesAnalyticsResponse"];
-                };
-            };
-        };
-    };
-    get_appointments_analytics_api_analytics_appointments_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AppointmentsAnalyticsResponse"];
                 };
             };
         };

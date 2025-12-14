@@ -8,16 +8,24 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatNumber(num: number): string {
   if (num >= 1_000_000_000_000) {
-    return (num / 1_000_000_000_000).toFixed(1) + "T";
+    const shouldAddSuffix = num !== 1_000_000_000_000;
+    return (
+      (num / 1_000_000_000_000).toFixed(1) + "T" + (shouldAddSuffix ? "+" : "")
+    );
   }
   if (num >= 1_000_000_000) {
-    return (num / 1_000_000_000).toFixed(1) + "B";
+    const shouldAddSuffix = num !== 1_000_000_000;
+    return (
+      (num / 1_000_000_000).toFixed(1) + "B" + (shouldAddSuffix ? "+" : "")
+    );
   }
   if (num >= 1_000_000) {
-    return (num / 1_000_000).toFixed(1) + "M";
+    const shouldAddSuffix = num !== 1_000_000;
+    return (num / 1_000_000).toFixed(1) + "M" + (shouldAddSuffix ? "+" : "");
   }
   if (num >= 1_000) {
-    return (num / 1_000).toFixed(1) + "K";
+    const shouldAddSuffix = num !== 1_000;
+    return (num / 1_000).toFixed(1) + "K" + (shouldAddSuffix ? "+" : "");
   }
   return num.toString();
 }
@@ -28,11 +36,15 @@ export function centsToDollars(cents: number): number {
 }
 
 // Format currency
-export function formatCurrency(cents: number): string {
-  return `$${centsToDollars(cents).toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+export function formatCurrency(
+  cents: number,
+  shouldFormatNumber: boolean = false
+): string {
+  const dollars = centsToDollars(cents);
+  const dollarsString = shouldFormatNumber
+    ? formatNumber(dollars)
+    : dollars.toString();
+  return `$${dollarsString}`;
 }
 
 // Calculate age from date of birth
@@ -65,24 +77,6 @@ export function formatNumberShort(num: number): string {
     return (num / 1_000).toFixed(1) + "K";
   }
   return num.toString();
-}
-
-// Specialty assignment function for providers
-const SPECIALTIES = [
-  "Aesthetic Medicine",
-  "Dermatology",
-  "Plastic Surgery",
-  "Cosmetic Nursing",
-  "Medical Aesthetics",
-  "Laser Specialist",
-];
-
-export function getProviderSpecialty(providerId: string): string {
-  // Use provider ID to deterministically assign a specialty
-  const hash = providerId
-    .split("")
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return SPECIALTIES[hash % SPECIALTIES.length];
 }
 
 // Map hex colors to Tailwind color classes

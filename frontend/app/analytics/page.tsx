@@ -9,6 +9,7 @@ import {
   AcquisitionCard,
   ServicesCard,
   AppointmentsCard,
+  TotalCustomersCard,
 } from "@/components/analytics";
 
 export default function AnalyticsPage() {
@@ -22,11 +23,12 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
         <TotalPatientsCard />
         <TotalRevenueCard />
         <TotalAppointmentsCard />
         <AveragePaymentCard />
+        <TotalCustomersCard />
       </div>
 
       {/* Patient Demographics */}

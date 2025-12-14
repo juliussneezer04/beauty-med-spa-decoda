@@ -121,7 +121,7 @@ export const TotalRevenueCard = memo(function TotalRevenueCard() {
   return (
     <DataStatCard
       title="Total Revenue"
-      value={formatCurrency(data.totalRevenue)}
+      value={formatCurrency(data.totalRevenue, true)}
       icon={DollarSign}
     />
   );
@@ -172,9 +172,35 @@ export const AveragePaymentCard = memo(function AveragePaymentCard() {
 
   return (
     <DataStatCard
-      title="Average Payment"
+      title="Average Payment (per Patient)"
       value={formatCurrency(data.averagePayment)}
       icon={TrendingUp}
+    />
+  );
+});
+
+export const TotalCustomersCard = memo(function TotalCustomersCard() {
+  const { data, loading, error } = useBusinessAnalytics();
+
+  if (loading) {
+    return <LoadingStatCard title="Total Customers" icon={Users} />;
+  }
+
+  if (error || !data) {
+    return (
+      <ErrorStatCard
+        title="Total Customers"
+        icon={Users}
+        error={error || "No data"}
+      />
+    );
+  }
+
+  return (
+    <DataStatCard
+      title="Total Customers"
+      value={formatNumberShort(data.totalCustomers)}
+      icon={Users}
     />
   );
 });

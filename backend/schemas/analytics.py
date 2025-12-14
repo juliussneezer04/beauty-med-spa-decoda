@@ -31,7 +31,7 @@ class BusinessAnalyticsResponse(BaseModel):
     topServices: list[TopServiceResponse]
     totalRevenue: int
     averagePayment: int
-    totalPayments: int
+    totalCustomers: int
     # Appointments
     statusDistribution: dict[str, int]
     avgServicesPerAppointment: str
