@@ -20,19 +20,21 @@ import { APP_COLORS } from "@/lib/colors";
 function LoadingDemographicsCard() {
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
-      <Skeleton className="mb-6 h-7 w-48" />
+      <h2 className="mb-6 text-xl font-semibold text-gray-900">
+        Patient Demographics
+      </h2>
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <Skeleton className="mx-auto mb-4 h-4 w-32" />
+          <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
+            Gender Distribution
+          </h3>
           <Skeleton className="mx-auto h-[250px] w-full max-w-[250px] rounded-full" />
         </div>
         <div>
-          <Skeleton className="mx-auto mb-4 h-4 w-32" />
-          <div className="space-y-2">
-            {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-8 w-full" />
-            ))}
-          </div>
+          <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
+            Age Distribution
+          </h3>
+          <Skeleton className="h-[250px] w-full" />
         </div>
       </div>
     </div>

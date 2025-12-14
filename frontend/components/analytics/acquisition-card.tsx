@@ -18,14 +18,14 @@ import { APP_COLORS } from "@/lib/colors";
 function LoadingAcquisitionCard() {
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
-      <Skeleton className="mb-6 h-7 w-40" />
+      <h2 className="mb-6 text-xl font-semibold text-gray-900">
+        Patient Acquisition
+      </h2>
       <div>
-        <Skeleton className="mx-auto mb-4 h-4 w-40" />
-        <div className="space-y-3">
-          {[...Array(5)].map((_, i) => (
-            <Skeleton key={i} className="h-10 w-full" />
-          ))}
-        </div>
+        <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
+          Patient Source Breakdown
+        </h3>
+        <Skeleton className="h-[300px] w-full" />
       </div>
     </div>
   );

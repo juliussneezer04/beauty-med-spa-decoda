@@ -18,14 +18,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 function LoadingServicesCard() {
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
-      <Skeleton className="mb-6 h-7 w-40" />
+      <h2 className="mb-6 text-xl font-semibold text-gray-900">
+        Services & Revenue
+      </h2>
       <div>
-        <Skeleton className="mx-auto mb-4 h-4 w-48" />
-        <div className="space-y-3">
-          {[...Array(8)].map((_, i) => (
-            <Skeleton key={i} className="h-8 w-full" />
-          ))}
-        </div>
+        <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
+          Your Top 10 Services by Revenue and Bookings
+        </h3>
+        <Skeleton className="h-[400px] w-full" />
       </div>
     </div>
   );

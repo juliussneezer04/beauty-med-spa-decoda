@@ -10,10 +10,14 @@ import { APP_COLORS } from "@/lib/colors";
 function LoadingAppointmentsCard() {
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
-      <Skeleton className="mb-6 h-7 w-44" />
+      <h2 className="mb-6 text-xl font-semibold text-gray-900">
+        Appointment Patterns
+      </h2>
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <Skeleton className="mx-auto mb-4 h-4 w-32" />
+          <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
+            Appointment Status
+          </h3>
           <Skeleton className="mx-auto h-[250px] w-full max-w-[250px] rounded-full" />
         </div>
         <div className="flex flex-col justify-center space-y-4">
