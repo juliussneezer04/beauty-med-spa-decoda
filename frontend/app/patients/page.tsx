@@ -1,78 +1,99 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { Search, ChevronDown, ChevronUp } from "lucide-react"
-import type { Patient, PaginatedResponse } from "@/lib/types"
-import { calculateAge } from "@/lib/mock-data"
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { Search, ChevronDown, ChevronUp } from "lucide-react";
+import type { Patient, PaginatedResponse } from "@/lib/types";
+import { calculateAge } from "@/lib/mock-data";
+
+interface SortIconProps {
+  column: string;
+  sortBy: string;
+  sortOrder: "asc" | "desc";
+}
+
+function SortIcon({ column, sortBy, sortOrder }: SortIconProps) {
+  if (sortBy !== column) {
+    return null;
+  }
+  return sortOrder === "asc" ? (
+    <ChevronUp className="h-4 w-4" />
+  ) : (
+    <ChevronDown className="h-4 w-4" />
+  );
+}
 
 export default function PatientsPage() {
-  const [patients, setPatients] = useState<Patient[]>([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState("")
-  const [genderFilter, setGenderFilter] = useState("")
-  const [sourceFilter, setSourceFilter] = useState("")
-  const [sortBy, setSortBy] = useState("created_date")
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
-  const [hasMore, setHasMore] = useState(false)
-  const [cursor, setCursor] = useState<string | null>(null)
-  const [total, setTotal] = useState(0)
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [genderFilter, setGenderFilter] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("");
+  const [sortBy, setSortBy] = useState("created_date");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [hasMore, setHasMore] = useState(false);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [total, setTotal] = useState(0);
 
-  const fetchPatients = async (reset = false) => {
-    setLoading(true)
-    const params = new URLSearchParams({
-      limit: "50",
-      ...(search && { search }),
-      ...(genderFilter && { gender: genderFilter }),
-      ...(sourceFilter && { source: sourceFilter }),
-      sortBy,
-      sortOrder,
-      ...(!reset && cursor && { cursor }),
-    })
+  const fetchPatients = useCallback(
+    async (reset = false) => {
+      setLoading(true);
+      const params = new URLSearchParams({
+        limit: "50",
+        ...(search && { search }),
+        ...(genderFilter && { gender: genderFilter }),
+        ...(sourceFilter && { source: sourceFilter }),
+        sortBy,
+        sortOrder,
+        ...(!reset && cursor && { cursor }),
+      });
 
-    // TODO: Replace with actual backend API endpoint
-    const response = await fetch(`/api/patients?${params}`)
-    const data: PaginatedResponse<Patient> = await response.json()
+      // TODO: Replace with actual backend API endpoint
+      const response = await fetch(`/api/patients?${params}`);
+      const data: PaginatedResponse<Patient> = await response.json();
 
-    if (reset) {
-      setPatients(data.data)
-    } else {
-      setPatients((prev) => [...prev, ...data.data])
-    }
+      if (reset) {
+        setPatients(data.data);
+      } else {
+        setPatients((prev) => [...prev, ...data.data]);
+      }
 
-    setHasMore(data.hasMore)
-    setCursor(data.nextCursor)
-    setTotal(data.total)
-    setLoading(false)
-  }
+      setHasMore(data.hasMore);
+      setCursor(data.nextCursor);
+      setTotal(data.total);
+      setLoading(false);
+    },
+    [cursor, search, genderFilter, sourceFilter, sortBy, sortOrder]
+  );
 
   useEffect(() => {
-    setCursor(null)
-    fetchPatients(true)
-  }, [search, genderFilter, sourceFilter, sortBy, sortOrder])
+    async function fetchPatientsEffectCallback() {
+      setCursor(null);
+      setLoading(true);
+      await fetchPatients(true);
+    }
+    fetchPatientsEffectCallback();
+  }, [fetchPatients, search, genderFilter, sourceFilter, sortBy, sortOrder]);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      setSortBy(column)
-      setSortOrder("asc")
+      setSortBy(column);
+      setSortOrder("asc");
     }
-  }
-
-  const SortIcon = ({ column }: { column: string }) => {
-    if (sortBy !== column) return null
-    return sortOrder === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-  }
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-3xl font-semibold text-transparent">
+        <h1 className="bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-3xl font-semibold text-transparent">
           Patients
         </h1>
-        <p className="mt-2 text-gray-600">Manage and view all patient records ({total} total)</p>
+        <p className="mt-2 text-gray-600">
+          Manage and view all patient records ({total} total)
+        </p>
       </div>
 
       {/* Filters */}
@@ -125,9 +146,17 @@ export default function PatientsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
-                <th className="cursor-pointer px-6 py-4 hover:text-blue-600" onClick={() => handleSort("first_name")}>
+                <th
+                  className="cursor-pointer px-6 py-4 hover:text-blue-600"
+                  onClick={() => handleSort("first_name")}
+                >
                   <div className="flex items-center gap-1">
-                    Name <SortIcon column="first_name" />
+                    Name{" "}
+                    <SortIcon
+                      sortBy={sortBy}
+                      sortOrder={sortOrder}
+                      column="first_name"
+                    />
                   </div>
                 </th>
                 <th
@@ -135,39 +164,78 @@ export default function PatientsPage() {
                   onClick={() => handleSort("date_of_birth")}
                 >
                   <div className="flex items-center gap-1">
-                    Age <SortIcon column="date_of_birth" />
+                    Age{" "}
+                    <SortIcon
+                      sortBy={sortBy}
+                      sortOrder={sortOrder}
+                      column="date_of_birth"
+                    />
                   </div>
                 </th>
-                <th className="cursor-pointer px-6 py-4 hover:text-blue-600" onClick={() => handleSort("gender")}>
+                <th
+                  className="cursor-pointer px-6 py-4 hover:text-blue-600"
+                  onClick={() => handleSort("gender")}
+                >
                   <div className="flex items-center gap-1">
-                    Gender <SortIcon column="gender" />
+                    Gender{" "}
+                    <SortIcon
+                      sortBy={sortBy}
+                      sortOrder={sortOrder}
+                      column="gender"
+                    />
                   </div>
                 </th>
                 <th className="px-6 py-4">Phone</th>
                 <th className="px-6 py-4">Email</th>
-                <th className="cursor-pointer px-6 py-4 hover:text-blue-600" onClick={() => handleSort("source")}>
+                <th
+                  className="cursor-pointer px-6 py-4 hover:text-blue-600"
+                  onClick={() => handleSort("source")}
+                >
                   <div className="flex items-center gap-1">
-                    Source <SortIcon column="source" />
+                    Source{" "}
+                    <SortIcon
+                      sortBy={sortBy}
+                      sortOrder={sortOrder}
+                      column="source"
+                    />
                   </div>
                 </th>
-                <th className="cursor-pointer px-6 py-4 hover:text-blue-600" onClick={() => handleSort("created_date")}>
+                <th
+                  className="cursor-pointer px-6 py-4 hover:text-blue-600"
+                  onClick={() => handleSort("created_date")}
+                >
                   <div className="flex items-center gap-1">
-                    Created <SortIcon column="created_date" />
+                    Created{" "}
+                    <SortIcon
+                      sortBy={sortBy}
+                      sortOrder={sortOrder}
+                      column="created_date"
+                    />
                   </div>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {patients.map((patient) => (
-                <tr key={patient.id} className="cursor-pointer transition-colors hover:bg-blue-50/50">
+                <tr
+                  key={patient.id}
+                  className="cursor-pointer transition-colors hover:bg-blue-50/50"
+                >
                   <td className="px-6 py-4">
-                    <Link href={`/patients/${patient.id}`} className="font-medium text-blue-600 hover:text-blue-700">
+                    <Link
+                      href={`/patients/${patient.id}`}
+                      className="font-medium text-blue-600 hover:text-blue-700"
+                    >
                       {patient.first_name} {patient.last_name}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">{calculateAge(patient.date_of_birth)}</td>
+                  <td className="px-6 py-4 text-gray-600">
+                    {calculateAge(patient.date_of_birth)}
+                  </td>
                   <td className="px-6 py-4">
-                    <span className="capitalize text-gray-600">{patient.gender}</span>
+                    <span className="capitalize text-gray-600">
+                      {patient.gender}
+                    </span>
                   </td>
                   <td className="px-6 py-4 text-gray-600">{patient.phone}</td>
                   <td className="px-6 py-4 text-gray-600">{patient.email}</td>
@@ -176,7 +244,9 @@ export default function PatientsPage() {
                       {patient.source}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">{new Date(patient.created_date).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-gray-600">
+                    {new Date(patient.created_date).toLocaleDateString()}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -197,5 +267,5 @@ export default function PatientsPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

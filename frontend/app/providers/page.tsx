@@ -1,57 +1,74 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { formatCurrency, formatNumberShort } from "@/lib/mock-data"
-import { Search, User, Mail, Phone, TrendingUp, Calendar } from "lucide-react"
+import { useEffect, useState } from "react";
+import { formatCurrency, formatNumberShort } from "@/lib/mock-data";
+import { Search, User, Mail, Phone, TrendingUp, Calendar } from "lucide-react";
 
-const COLORS = ["#0ea5e9", "#a855f7", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899"]
+const COLORS = [
+  "#0ea5e9",
+  "#a855f7",
+  "#f59e0b",
+  "#10b981",
+  "#ef4444",
+  "#8b5cf6",
+  "#06b6d4",
+  "#ec4899",
+];
 
 export default function ProvidersPage() {
-  const [providers, setProviders] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [hasMore, setHasMore] = useState(false)
-  const [nextCursor, setNextCursor] = useState<string | null>(null)
-  const [search, setSearch] = useState("")
+  const [providers, setProviders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
-  const loadProviders = async (cursor?: string | null, searchQuery?: string) => {
-    setLoading(true)
-    const params = new URLSearchParams()
-    if (cursor) params.append("cursor", cursor)
-    if (searchQuery) params.append("search", searchQuery)
-    params.append("limit", "20")
+  const loadProviders = async (
+    cursor?: string | null,
+    searchQuery?: string
+  ) => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (cursor) params.append("cursor", cursor);
+    if (searchQuery) params.append("search", searchQuery);
+    params.append("limit", "20");
 
     // TODO: Replace with actual backend API
-    const response = await fetch(`/api/providers?${params.toString()}`)
-    const data = await response.json()
+    const response = await fetch(`/api/providers?${params.toString()}`);
+    const data = await response.json();
 
     if (cursor) {
-      setProviders((prev) => [...prev, ...data.data])
+      setProviders((prev) => [...prev, ...data.data]);
     } else {
-      setProviders(data.data)
+      setProviders(data.data);
     }
-    setHasMore(data.hasMore)
-    setNextCursor(data.nextCursor)
-    setLoading(false)
-  }
+    setHasMore(data.hasMore);
+    setNextCursor(data.nextCursor);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    loadProviders(null, search)
-  }, [search])
+    async function fetchProviders() {
+      await loadProviders(null, search);
+    }
+    fetchProviders();
+  }, [search]);
 
   const handleSearch = (value: string) => {
-    setSearch(value)
-    setProviders([])
-    setNextCursor(null)
-  }
+    setSearch(value);
+    setProviders([]);
+    setNextCursor(null);
+  };
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-3xl font-semibold text-transparent">
+        <h1 className="bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-3xl font-semibold text-transparent">
           Providers
         </h1>
-        <p className="mt-2 text-gray-600">View and manage all healthcare providers</p>
+        <p className="mt-2 text-gray-600">
+          View and manage all healthcare providers
+        </p>
       </div>
 
       {/* Search */}
@@ -93,7 +110,9 @@ export default function ProvidersPage() {
                       <User className="h-6 w-6 text-blue-500" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">{provider.name}</h3>
+                      <h3 className="font-semibold text-gray-900">
+                        {provider.name}
+                      </h3>
                       <span
                         className="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                         style={{
@@ -135,7 +154,9 @@ export default function ProvidersPage() {
                       <TrendingUp className="h-3 w-3" />
                       <span>Revenue</span>
                     </div>
-                    <p className="mt-1 text-lg font-semibold text-gray-900">{formatCurrency(provider.revenue)}</p>
+                    <p className="mt-1 text-lg font-semibold text-gray-900">
+                      {formatCurrency(provider.revenue)}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -157,5 +178,5 @@ export default function ProvidersPage() {
         </>
       )}
     </div>
-  )
+  );
 }
