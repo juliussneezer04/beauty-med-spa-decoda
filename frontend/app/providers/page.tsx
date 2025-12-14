@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCurrency, formatNumberShort } from "@/lib/mock-data";
+import { formatCurrency, formatNumberShort } from "@/lib/utils";
 import { useProviders } from "@/hooks/use-providers";
 import { Search, User, Mail, Phone, TrendingUp, Calendar } from "lucide-react";
 

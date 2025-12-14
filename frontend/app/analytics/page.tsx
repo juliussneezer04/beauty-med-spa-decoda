@@ -15,7 +15,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { formatCurrency, formatNumberShort } from "@/lib/mock-data";
+import { formatCurrency, formatNumberShort } from "@/lib/utils";
 import { useAnalytics } from "@/hooks/use-analytics";
 import Link from "next/link";
 
@@ -281,36 +281,34 @@ export default function AnalyticsPage() {
               </tr>
             </thead>
             <tbody className="text-sm">
-              {providers.providers
-                .slice(0, 10)
-                .map((provider, index) => (
-                  <tr
-                    key={provider.id}
-                    className="border-b border-gray-100 cursor-pointer hover:bg-blue-50/50 transition-colors"
-                    onClick={() => (window.location.href = "/providers")}
-                  >
-                    <td className="py-3 font-medium text-gray-900">
-                      {provider.name}
-                    </td>
-                    <td className="py-3">
-                      <span
-                        className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                        style={{
-                          backgroundColor: COLORS[index % COLORS.length] + "20",
-                          color: COLORS[index % COLORS.length],
-                        }}
-                      >
-                        {provider.specialty}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right text-gray-900">
-                      {formatNumberShort(provider.appointmentCount)}
-                    </td>
-                    <td className="py-3 text-right font-medium text-gray-900">
-                      {formatCurrency(provider.revenue)}
-                    </td>
-                  </tr>
-                ))}
+              {providers.providers.slice(0, 10).map((provider, index) => (
+                <tr
+                  key={provider.id}
+                  className="border-b border-gray-100 cursor-pointer hover:bg-blue-50/50 transition-colors"
+                  onClick={() => (window.location.href = "/providers")}
+                >
+                  <td className="py-3 font-medium text-gray-900">
+                    {provider.name}
+                  </td>
+                  <td className="py-3">
+                    <span
+                      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                      style={{
+                        backgroundColor: COLORS[index % COLORS.length] + "20",
+                        color: COLORS[index % COLORS.length],
+                      }}
+                    >
+                      {provider.specialty}
+                    </span>
+                  </td>
+                  <td className="py-3 text-right text-gray-900">
+                    {formatNumberShort(provider.appointmentCount)}
+                  </td>
+                  <td className="py-3 text-right font-medium text-gray-900">
+                    {formatCurrency(provider.revenue)}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

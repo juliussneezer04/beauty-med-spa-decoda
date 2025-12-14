@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
-import { calculateAge } from "@/lib/mock-data";
+import { calculateAge } from "@/lib/utils";
 import { usePatients } from "@/hooks/use-patients";
 
 interface SortIconProps {
