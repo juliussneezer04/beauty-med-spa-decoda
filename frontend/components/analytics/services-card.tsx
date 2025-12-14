@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { Fragment, memo } from "react";
 import {
   ScatterChart,
   Scatter,
@@ -88,14 +88,29 @@ export const ServicesCard = memo(function ServicesCard() {
     count: service.count,
   }));
 
+  const scatterDataSortedByCount = [...scatterData].sort(
+    (a, b) => b.count - a.count
+  );
+  const topServiceByCount = scatterDataSortedByCount[0];
+
+  const scatterDataSortedByRevenue = [...scatterData].sort(
+    (a, b) => b.revenue - a.revenue
+  );
+  const topServiceByRevenue = scatterDataSortedByRevenue[0];
+
+  const isSameService = topServiceByCount.name === topServiceByRevenue.name;
+  const titleText = isSameService
+    ? "Beauty Med Spa's Most Popular (& Profitable) Service"
+    : "Beauty Med Spa's Most Popular Service";
+
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
       <h2 className="mb-6 text-xl font-semibold text-gray-900">
-        Services & Revenue
+        {titleText}: <b>{topServiceByCount.name}</b>
       </h2>
       <div>
         <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
-          Your Top 10 Services by Revenue and Bookings
+          Top 10 Services by Revenue and Bookings
         </h3>
         <ResponsiveContainer width="100%" height={400}>
           <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 80 }}>
@@ -134,6 +149,21 @@ export const ServicesCard = memo(function ServicesCard() {
             <Scatter name="Services" data={scatterData} fill="#0ea5e9" />
           </ScatterChart>
         </ResponsiveContainer>
+        <p className="mt-2 text-center text-bold text-xs text-gray-500">
+          Insight: The most popular service is <b>{topServiceByCount.name}</b>{" "}
+          with <b>{topServiceByCount.count}</b> bookings and{" "}
+          <b>{formatCurrency(topServiceByCount.revenue)}</b> in revenue
+          {isSameService ? (
+            <Fragment></Fragment>
+          ) : (
+            <Fragment>
+              , while the most profitable service is{" "}
+              <b>{topServiceByRevenue.name}</b> with{" "}
+              <b>{formatCurrency(topServiceByRevenue.revenue)}</b> in revenue.
+            </Fragment>
+          )}
+          .
+        </p>
       </div>
     </div>
   );

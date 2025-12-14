@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { Fragment, memo, ReactNode } from "react";
 import {
   BarChart,
   Bar,
@@ -66,10 +66,36 @@ export const AcquisitionCard = memo(function AcquisitionCard() {
     })
   );
 
+  // Find top 2 sources
+  const sortedSourceData = [...sourceData].sort((a, b) => b.value - a.value);
+  const topSources = sortedSourceData.slice(0, 2);
+
+  // Format source subtitle
+  const formatSourceSubtitle = (): ReactNode => {
+    if (topSources.length === 0) {
+      return <Fragment></Fragment>;
+    }
+    if (topSources.length === 1) {
+      return (
+        <Fragment>
+          Most patients come from <b>{topSources[0].name}</b>
+        </Fragment>
+      );
+    }
+    return (
+      <Fragment>
+        Most patients come from <b>{topSources[0].name}</b> and{" "}
+        <b>{topSources[1].name}</b>
+      </Fragment>
+    );
+  };
+
+  const sourceSubtitle = formatSourceSubtitle();
+
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
       <h2 className="mb-6 text-xl font-semibold text-gray-900">
-        Patient Acquisition
+        Where do most patients come from?
       </h2>
       <div>
         <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
@@ -93,6 +119,11 @@ export const AcquisitionCard = memo(function AcquisitionCard() {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+        {sourceSubtitle && (
+          <p className="mt-2 text-center text-bold text-xs text-gray-500">
+            Insight: {sourceSubtitle}
+          </p>
+        )}
       </div>
     </div>
   );

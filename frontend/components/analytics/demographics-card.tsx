@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { Fragment, memo, ReactNode } from "react";
 import {
   BarChart,
   Bar,
@@ -81,6 +81,79 @@ export const DemographicsCard = memo(function DemographicsCard() {
     })
   );
 
+  // Find majority gender
+  const majorityGender = genderData.reduce((prev, current) =>
+    prev.value > current.value ? prev : current
+  );
+
+  // Find top 2 age ranges
+  const sortedAgeData = [...ageData].sort((a, b) => b.value - a.value);
+  const topAgeRanges = sortedAgeData.slice(0, 2);
+
+  // Helper function to parse age range (e.g., "35-44" -> { start: 35, end: 44 })
+  const parseAgeRange = (
+    range: string
+  ): { start: number; end: number } | null => {
+    const match = range.match(/(\d+)-(\d+)/);
+    if (!match) return null;
+    return { start: parseInt(match[1]), end: parseInt(match[2]) };
+  };
+
+  // Format age ranges subtitle
+  const formatAgeSubtitle = (): ReactNode => {
+    if (topAgeRanges.length === 0) {
+      return <Fragment></Fragment>;
+    }
+    if (topAgeRanges.length === 1) {
+      return (
+        <Fragment>
+          Most patients are <b>{topAgeRanges[0].name}</b> years old
+        </Fragment>
+      );
+    }
+
+    const range1 = parseAgeRange(topAgeRanges[0].name);
+    const range2 = parseAgeRange(topAgeRanges[1].name);
+
+    if (!range1 || !range2) {
+      return (
+        <Fragment>
+          Most patients are either <b>{topAgeRanges[0].name}</b> or{" "}
+          <b>{topAgeRanges[1].name}</b> years old
+        </Fragment>
+      );
+    }
+
+    // Check if ranges are consecutive
+    const isConsecutive =
+      range1.end + 1 === range2.start || range2.end + 1 === range1.start;
+
+    if (isConsecutive) {
+      // Consecutive: combine them (always use the smaller start and larger end)
+      const combinedStart = Math.min(range1.start, range2.start);
+      const combinedEnd = Math.max(range1.end, range2.end);
+      return (
+        <Fragment>
+          Most patients are{" "}
+          <b>
+            {combinedStart}-{combinedEnd}
+          </b>{" "}
+          years old
+        </Fragment>
+      );
+    } else {
+      // Not consecutive: use "either...or"
+      return (
+        <Fragment>
+          Most patients are either <b>{topAgeRanges[0].name}</b> or{" "}
+          <b>{topAgeRanges[1].name}</b> years old
+        </Fragment>
+      );
+    }
+  };
+
+  const ageSubtitle = formatAgeSubtitle();
+
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
       <h2 className="mb-6 text-xl font-semibold text-gray-900">
@@ -113,6 +186,10 @@ export const DemographicsCard = memo(function DemographicsCard() {
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
+          <p className="mt-2 text-center text-xs text-gray-500">
+            Insight: Majority of your patients are{" "}
+            <b>{majorityGender.name.toLowerCase()}</b>
+          </p>
         </div>
 
         {/* Age Distribution */}
@@ -133,6 +210,11 @@ export const DemographicsCard = memo(function DemographicsCard() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          {ageSubtitle && (
+            <p className="mt-2 text-center text-bold text-xs text-gray-500">
+              Insight: {ageSubtitle}
+            </p>
+          )}
         </div>
       </div>
     </div>
