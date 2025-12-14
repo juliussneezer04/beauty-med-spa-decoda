@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Topbar } from "@/components/topbar";
+import { Footer } from "@/components/footer";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -38,7 +39,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased min-h-screen bg-gray-50`}>
+      <body
+        className={`font-sans antialiased min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col`}
+      >
         {/* Background gradients inspired by Decoda Health Site */}
         <div className="fixed inset-0 pointer-events-none -z-10">
           <div className="absolute inset-0 overflow-hidden">
@@ -64,9 +67,11 @@ export default function RootLayout({
         <Topbar />
 
         {/* Main content area */}
-        <main className="pt-16 min-h-screen p-8">
+        <main className="pt-16 flex-1 p-8">
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
+
+        <Footer />
 
         <Analytics />
       </body>
