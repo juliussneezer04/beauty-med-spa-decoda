@@ -37,3 +37,29 @@ python scripts/seed_database.py
 This will seed the database with the data from the seed_data directory.
 
 ## Running the app
+
+To run the FastAPI server, use one of the following methods:
+
+### Method 1: Using the run script (recommended)
+
+```bash
+python run_server.py
+```
+
+### Method 2: Using python -m uvicorn
+
+```bash
+python -m uvicorn main:app --reload --port 8000
+```
+
+### Method 3: Using uvicorn directly (if installed correctly)
+
+```bash
+uvicorn main:app --reload --port 8000
+```
+
+The API will be available at:
+
+- API: http://localhost:8000
+- Interactive docs: http://localhost:8000/docs
+- Alternative docs: http://localhost:8000/redoc

@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+"""
+Simple script to run the FastAPI server.
+Usage: python run_server.py
+"""
+
+import uvicorn
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",
+        port=8000,
+        reload=True,
+    )

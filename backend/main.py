@@ -1,10 +1,44 @@
-from db.engine import create_sqlalchemy_engine
+"""
+FastAPI application entry point.
+"""
 
-app_engine = create_sqlalchemy_engine()
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-# Test the connection
-try:
-    with app_engine.connect() as connection:
-        print("Connection successful!")
-except Exception as e:
-    print(f"Failed to connect: {e}")
+from routers import patients_router, providers_router, analytics_router
+
+# Create FastAPI app
+app = FastAPI(
+    title="Decoda Health API",
+    description="Backend API for Decoda Health patient management system",
+    version="1.0.0",
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",  # Next.js dev server
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(patients_router)
+app.include_router(providers_router)
+app.include_router(analytics_router)
+
+
+@app.get("/")
+def root():
+    """Health check endpoint."""
+    return {"status": "ok", "message": "Decoda Health API is running"}
+
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint for monitoring."""
+    return {"status": "healthy"}
