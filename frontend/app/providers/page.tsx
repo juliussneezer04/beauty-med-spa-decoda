@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatCurrency, formatNumberShort } from "@/lib/mock-data";
+import { getProviders } from "@/lib/api";
 import { Search, User, Mail, Phone, TrendingUp, Calendar } from "lucide-react";
 
 const COLORS = [
@@ -33,8 +34,11 @@ export default function ProvidersPage() {
     params.append("limit", "20");
 
     // TODO: Replace with actual backend API
-    const response = await fetch(`/api/providers?${params.toString()}`);
-    const data = await response.json();
+    const data = await getProviders({
+      cursor: cursor || undefined,
+      limit: 20,
+      search: searchQuery || undefined,
+    });
 
     if (cursor) {
       setProviders((prev) => [...prev, ...data.data]);

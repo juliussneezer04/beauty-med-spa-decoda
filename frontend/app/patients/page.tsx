@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import type { Patient, PaginatedResponse } from "@/lib/types";
 import { calculateAge } from "@/lib/mock-data";
+import { getPatients } from "@/lib/api";
 
 interface SortIconProps {
   column: string;
@@ -49,8 +50,15 @@ export default function PatientsPage() {
       });
 
       // TODO: Replace with actual backend API endpoint
-      const response = await fetch(`/api/patients?${params}`);
-      const data: PaginatedResponse<Patient> = await response.json();
+      const data = await getPatients({
+        cursor: params.get("cursor") || undefined,
+        limit: Number.parseInt(params.get("limit") || "50"),
+        search: params.get("search") || undefined,
+        gender: params.get("gender") || undefined,
+        source: params.get("source") || undefined,
+        sortBy: params.get("sortBy") || undefined,
+        sortOrder: (params.get("sortOrder") as "asc" | "desc") || undefined,
+      });
 
       if (reset) {
         setPatients(data.data);
