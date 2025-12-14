@@ -1,6 +1,6 @@
 /**
  * Hook for managing patients list page state and data fetching.
- * 
+ *
  * All filtering and sorting is done server-side via API calls.
  * When filters, sort, or search change, a new API call is made.
  */
@@ -71,12 +71,12 @@ export function usePatients(
   // Debounced search setter - only this triggers API calls
   const setSearch = useCallback((value: string) => {
     setSearchState(value);
-    
+
     // Clear existing timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
-    
+
     // Debounce the actual API trigger
     searchTimeoutRef.current = setTimeout(() => {
       setDebouncedSearch(value);
@@ -141,6 +141,9 @@ export function usePatients(
         if (!shouldReset && cursor) {
           params.cursor = cursor;
         }
+        if (abortControllerRef.current) {
+          params.signal = abortControllerRef.current.signal;
+        }
 
         const data = await getPatients(params);
 
@@ -174,7 +177,14 @@ export function usePatients(
 
   // Fetch when debounced search, filters, or sort change
   useEffect(() => {
-    fetchPatients(debouncedSearch, genderFilter, sourceFilter, sortBy, sortOrder, true);
+    fetchPatients(
+      debouncedSearch,
+      genderFilter,
+      sourceFilter,
+      sortBy,
+      sortOrder,
+      true
+    );
   }, [debouncedSearch, genderFilter, sourceFilter, sortBy, sortOrder]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle column sort toggle
@@ -192,14 +202,44 @@ export function usePatients(
   // Load more patients
   const loadMore = useCallback(async () => {
     if (!loadingMore && hasMore) {
-      await fetchPatients(debouncedSearch, genderFilter, sourceFilter, sortBy, sortOrder, false);
+      await fetchPatients(
+        debouncedSearch,
+        genderFilter,
+        sourceFilter,
+        sortBy,
+        sortOrder,
+        false
+      );
     }
-  }, [fetchPatients, debouncedSearch, genderFilter, sourceFilter, sortBy, sortOrder, loadingMore, hasMore]);
+  }, [
+    fetchPatients,
+    debouncedSearch,
+    genderFilter,
+    sourceFilter,
+    sortBy,
+    sortOrder,
+    loadingMore,
+    hasMore,
+  ]);
 
   // Refresh (reset and fetch)
   const refresh = useCallback(async () => {
-    await fetchPatients(debouncedSearch, genderFilter, sourceFilter, sortBy, sortOrder, true);
-  }, [fetchPatients, debouncedSearch, genderFilter, sourceFilter, sortBy, sortOrder]);
+    await fetchPatients(
+      debouncedSearch,
+      genderFilter,
+      sourceFilter,
+      sortBy,
+      sortOrder,
+      true
+    );
+  }, [
+    fetchPatients,
+    debouncedSearch,
+    genderFilter,
+    sourceFilter,
+    sortBy,
+    sortOrder,
+  ]);
 
   return {
     patients,

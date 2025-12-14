@@ -47,6 +47,7 @@ export interface GetPatientsParams {
   source?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+  signal?: AbortSignal;
 }
 
 export async function getPatients(
@@ -64,8 +65,12 @@ export async function getPatients(
 
   const queryString = queryParams.toString();
   const endpoint = `/api/patients${queryString ? `?${queryString}` : ""}`;
+  const options: RequestInit = {};
+  if (params.signal) {
+    options.signal = params.signal;
+  }
 
-  return apiFetch<PatientListResponse>(endpoint);
+  return apiFetch<PatientListResponse>(endpoint, options);
 }
 
 export async function getPatientById(
