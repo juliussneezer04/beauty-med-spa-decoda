@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Topbar } from "@/components/topbar";
 import { Footer } from "@/components/footer";
+import { AnalyticsProvider } from "@/contexts/analytics-context";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -38,43 +39,45 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`font-sans antialiased min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col`}
-      >
-        {/* Background gradients inspired by Decoda Health Site */}
-        <div className="fixed inset-0 pointer-events-none -z-10">
-          <div className="absolute inset-0 overflow-hidden">
-            <div
-              className="absolute inset-0 opacity-10 z-0"
-              style={{
-                background:
-                  "radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.3), rgba(168, 85, 247, 0.3), rgba(78, 128, 238, 0.3), transparent 60%)",
-              }}
-            />
-            <div
-              className="absolute inset-0 opacity-5 z-0"
-              style={{
-                background:
-                  "linear-gradient(120deg, #0ea5e9, #a855f7, #4e80ee, #0ea5e9)",
-                backgroundSize: "300% 300%",
-              }}
-            />
+    <AnalyticsProvider>
+      <html lang="en">
+        <body
+          className={`font-sans antialiased min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col`}
+        >
+          {/* Background gradients inspired by Decoda Health Site */}
+          <div className="fixed inset-0 pointer-events-none -z-10">
+            <div className="absolute inset-0 overflow-hidden">
+              <div
+                className="absolute inset-0 opacity-10 z-0"
+                style={{
+                  background:
+                    "radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.3), rgba(168, 85, 247, 0.3), rgba(78, 128, 238, 0.3), transparent 60%)",
+                }}
+              />
+              <div
+                className="absolute inset-0 opacity-5 z-0"
+                style={{
+                  background:
+                    "linear-gradient(120deg, #0ea5e9, #a855f7, #4e80ee, #0ea5e9)",
+                  backgroundSize: "300% 300%",
+                }}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Topbar */}
-        <Topbar />
+          {/* Topbar */}
+          <Topbar />
 
-        {/* Main content area */}
-        <main className="pt-16 flex-1 p-8">
-          <div className="mx-auto my-4 max-w-7xl">{children}</div>
-        </main>
+          {/* Main content area */}
+          <main className="pt-16 flex-1 p-8">
+            <div className="mx-auto my-4 max-w-7xl">{children}</div>
+          </main>
 
-        <Footer />
+          <Footer />
 
-        <Analytics />
-      </body>
-    </html>
+          <Analytics />
+        </body>
+      </html>
+    </AnalyticsProvider>
   );
 }
