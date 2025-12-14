@@ -1,61 +1,47 @@
-// Type definitions matching models.py schema
+// Type definitions derived from server.d.ts (OpenAPI generated types)
+// Re-export component schemas for convenience
 
-export interface Patient {
-  id: string
-  first_name: string
-  last_name: string
-  date_of_birth: string
-  gender: "male" | "female" | "other"
-  source: "in_person" | "phone" | "instagram" | "tiktok" | "google" | "website"
-  address: string
-  phone: string
-  email: string
-  created_date: string
-}
+import type { components } from "@/server";
 
-export interface Appointment {
-  id: string
-  patient_id: string
-  status: "pending" | "confirmed" | "cancelled"
-  created_date: string
-}
+// Core entity types from server schema
+export type PatientResponse = components["schemas"]["PatientResponse"];
+export type ServiceResponse = components["schemas"]["ServiceResponse"];
+export type PaymentResponse = components["schemas"]["PaymentResponse"];
+export type ProviderResponse = components["schemas"]["ProviderResponse"];
+export type AppointmentWithServices =
+  components["schemas"]["AppointmentWithServices"];
 
-export interface Service {
-  id: string
-  name: string
-  description: string
-  price: number
-  duration: number
-  created_date: string
-}
+// List response types
+export type PatientListResponse = components["schemas"]["PatientListResponse"];
+export type PatientDetailResponse =
+  components["schemas"]["PatientDetailResponse"];
+export type ProviderListResponse =
+  components["schemas"]["ProviderListResponse"];
 
-export interface Provider {
-  id: string
-  first_name: string
-  last_name: string
-  specialty: string
-  created_date: string
-}
+// Analytics types
+export type DemographicsResponse =
+  components["schemas"]["DemographicsResponse"];
+export type SourcesResponse = components["schemas"]["SourcesResponse"];
+export type ServicesAnalyticsResponse =
+  components["schemas"]["ServicesAnalyticsResponse"];
+export type ProvidersAnalyticsResponse =
+  components["schemas"]["ProvidersAnalyticsResponse"];
+export type AppointmentsAnalyticsResponse =
+  components["schemas"]["AppointmentsAnalyticsResponse"];
+export type TopServiceResponse = components["schemas"]["TopServiceResponse"];
+export type ProviderAnalyticsItem =
+  components["schemas"]["ProviderAnalyticsItem"];
 
-export interface Payment {
-  id: string
-  appointment_id: string
-  amount: number
-  payment_date: string
-  created_date: string
-}
-
-export interface AppointmentService {
-  id: string
-  appointment_id: string
-  service_id: string
-  provider_id: string
-  created_date: string
-}
-
+// Generic paginated response (for backwards compatibility)
 export interface PaginatedResponse<T> {
-  data: T[]
-  nextCursor: string | null
-  hasMore: boolean
-  total: number
+  data: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  total: number;
 }
+
+// Alias for backwards compatibility
+export type Patient = PatientResponse;
+export type Service = ServiceResponse;
+export type Payment = PaymentResponse;
+export type Provider = ProviderResponse;

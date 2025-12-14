@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { formatCurrency, formatNumberShort } from "@/lib/mock-data";
-import { getProviders } from "@/lib/api";
+import { useProviders } from "@/hooks/use-providers";
 import { Search, User, Mail, Phone, TrendingUp, Calendar } from "lucide-react";
 
 const COLORS = [
@@ -17,51 +16,24 @@ const COLORS = [
 ];
 
 export default function ProvidersPage() {
-  const [providers, setProviders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
+  const {
+    providers,
+    hasMore,
+    loading,
+    loadingMore,
+    error,
+    search,
+    setSearch,
+    loadMore,
+  } = useProviders({ initialLimit: 20 });
 
-  const loadProviders = async (
-    cursor?: string | null,
-    searchQuery?: string
-  ) => {
-    setLoading(true);
-    const params = new URLSearchParams();
-    if (cursor) params.append("cursor", cursor);
-    if (searchQuery) params.append("search", searchQuery);
-    params.append("limit", "20");
-
-    // TODO: Replace with actual backend API
-    const data = await getProviders({
-      cursor: cursor || undefined,
-      limit: 20,
-      search: searchQuery || undefined,
-    });
-
-    if (cursor) {
-      setProviders((prev) => [...prev, ...data.data]);
-    } else {
-      setProviders(data.data);
-    }
-    setHasMore(data.hasMore);
-    setNextCursor(data.nextCursor);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    async function fetchProviders() {
-      await loadProviders(null, search);
-    }
-    fetchProviders();
-  }, [search]);
-
-  const handleSearch = (value: string) => {
-    setSearch(value);
-    setProviders([]);
-    setNextCursor(null);
-  };
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-lg text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -84,7 +56,7 @@ export default function ProvidersPage() {
             placeholder="Search by name or specialty..."
             className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             value={search}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
@@ -110,7 +82,6 @@ export default function ProvidersPage() {
                 <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="rounded-full bg-blue-50 p-3">
-                      {/* TODO: Replace with actual provider photo */}
                       <User className="h-6 w-6 text-blue-500" />
                     </div>
                     <div>
@@ -171,11 +142,11 @@ export default function ProvidersPage() {
           {hasMore && (
             <div className="flex justify-center">
               <button
-                onClick={() => loadProviders(nextCursor, search)}
-                disabled={loading}
+                onClick={loadMore}
+                disabled={loadingMore}
                 className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
               >
-                {loading ? "Loading..." : "Load More"}
+                {loadingMore ? "Loading..." : "Load More"}
               </button>
             </div>
           )}

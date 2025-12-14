@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { StatCard } from "@/components/stat-card";
 import { Users, DollarSign, Calendar, TrendingUp } from "lucide-react";
 import {
@@ -17,13 +16,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { formatCurrency, formatNumberShort } from "@/lib/mock-data";
-import {
-  getAnalyticsDemographics,
-  getAnalyticsSources,
-  getAnalyticsServices,
-  getAnalyticsProviders,
-  getAnalyticsAppointments,
-} from "@/lib/api";
+import { useAnalytics } from "@/hooks/use-analytics";
 import Link from "next/link";
 
 const COLORS = [
@@ -38,30 +31,7 @@ const COLORS = [
 ];
 
 export default function AnalyticsPage() {
-  const [demographics, setDemographics] = useState<any>(null);
-  const [sources, setSources] = useState<any>(null);
-  const [services, setServices] = useState<any>(null);
-  const [providers, setProviders] = useState<any>(null);
-  const [appointments, setAppointments] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // TODO: These API calls will be replaced with actual backend endpoints
-    Promise.all([
-      getAnalyticsDemographics(),
-      getAnalyticsSources(),
-      getAnalyticsServices(),
-      getAnalyticsProviders(),
-      getAnalyticsAppointments(),
-    ]).then(([demo, src, svc, prov, apt]) => {
-      setDemographics(demo);
-      setSources(src);
-      setServices(svc);
-      setProviders(prov);
-      setAppointments(apt);
-      setLoading(false);
-    });
-  }, []);
+  const { data, loading, error } = useAnalytics();
 
   if (loading) {
     return (
@@ -70,6 +40,24 @@ export default function AnalyticsPage() {
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-lg text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-lg text-gray-500">No analytics data available</div>
+      </div>
+    );
+  }
+
+  const { demographics, sources, services, providers, appointments } = data;
 
   const genderData = Object.entries(demographics.genderDistribution).map(
     ([name, value], index) => ({
@@ -295,7 +283,7 @@ export default function AnalyticsPage() {
             <tbody className="text-sm">
               {providers.providers
                 .slice(0, 10)
-                .map((provider: any, index: number) => (
+                .map((provider, index) => (
                   <tr
                     key={provider.id}
                     className="border-b border-gray-100 cursor-pointer hover:bg-blue-50/50 transition-colors"

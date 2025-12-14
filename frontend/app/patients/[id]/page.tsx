@@ -1,24 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, DollarSign } from "lucide-react";
 import { formatCurrency, calculateAge } from "@/lib/mock-data";
-import { getPatientById } from "@/lib/api";
+import { usePatientDetail } from "@/hooks/use-patient-detail";
 
 export default function PatientDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // TODO: Replace with actual backend API endpoint
-    getPatientById(params.id as string).then((data) => {
-      setData(data);
-      setLoading(false);
-    });
-  }, [params.id]);
+  const { data, loading, error } = usePatientDetail(params.id as string);
 
   if (loading) {
     return (
@@ -28,8 +18,20 @@ export default function PatientDetailPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-lg text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
+
   if (!data) {
-    return <div>Patient not found</div>;
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-lg text-gray-500">Patient not found</div>
+      </div>
+    );
   }
 
   const { patient, appointments } = data;
@@ -98,7 +100,7 @@ export default function PatientDetailPage() {
           <p className="text-center text-gray-500">No appointments found</p>
         ) : (
           <div className="space-y-4">
-            {appointments.map((apt: any) => (
+            {appointments.map((apt) => (
               <div
                 key={apt.id}
                 className="rounded-xl border border-gray-200 bg-white p-4"
@@ -138,7 +140,7 @@ export default function PatientDetailPage() {
                           Services:
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          {apt.services.map((service: any) => (
+                          {apt.services.map((service) => (
                             <span
                               key={service.id}
                               className="inline-flex items-center rounded-full bg-purple-50 px-3 py-1 text-sm text-purple-700"
