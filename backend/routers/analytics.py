@@ -12,11 +12,15 @@ from db.models import (
     AppointmentService,
     Service,
     Payment,
+    Provider,
 )
 from schemas.analytics import (
     TopServiceResponse,
     PatientAnalyticsResponse,
     BusinessAnalyticsResponse,
+    TopProviderResponse,
+    ProviderAnalyticsResponse,
+    PatientBehaviorResponse,
 )
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
@@ -244,4 +248,173 @@ def get_business_analytics(db: Session = Depends(get_db)):
         avgServicesPerAppointment=avg_services_per_appointment,
         appointmentsByDay=appointments_by_day_dict,
         totalAppointments=total_appointments,
+    )
+
+
+@router.get("/providers", response_model=ProviderAnalyticsResponse)
+def get_provider_analytics(db: Session = Depends(get_db)):
+    """
+    Get top 5 busiest providers by appointment count.
+    """
+    # Subquery for appointment count per provider
+    appointment_count_subq = (
+        db.query(
+            AppointmentService.provider_id,
+            func.count(func.distinct(AppointmentService.appointment_id)).label(
+                "appointment_count"
+            ),
+        )
+        .group_by(AppointmentService.provider_id)
+        .subquery()
+    )
+
+    # Subquery for revenue per provider (sum of paid payments)
+    revenue_subq = (
+        db.query(
+            Payment.provider_id,
+            func.coalesce(func.sum(Payment.amount), 0).label("revenue"),
+        )
+        .filter(Payment.status == "paid")
+        .group_by(Payment.provider_id)
+        .subquery()
+    )
+
+    # Main query with joins - get top 5 by appointment count
+    top_providers_query = (
+        db.query(
+            Provider,
+            func.coalesce(appointment_count_subq.c.appointment_count, 0).label(
+                "appointment_count"
+            ),
+            func.coalesce(revenue_subq.c.revenue, 0).label("revenue"),
+        )
+        .outerjoin(
+            appointment_count_subq,
+            Provider.id == appointment_count_subq.c.provider_id,
+        )
+        .outerjoin(revenue_subq, Provider.id == revenue_subq.c.provider_id)
+        .order_by(
+            func.coalesce(appointment_count_subq.c.appointment_count, 0).desc(),
+            Provider.id.asc(),
+        )
+        .limit(5)
+        .all()
+    )
+
+    top_providers = [
+        TopProviderResponse(
+            id=provider.id,
+            name=f"{provider.first_name} {provider.last_name}",
+            email=provider.email,
+            phone=provider.phone,
+            appointmentCount=appointment_count,
+            revenue=revenue,
+        )
+        for provider, appointment_count, revenue in top_providers_query
+    ]
+
+    return ProviderAnalyticsResponse(topProviders=top_providers)
+
+
+@router.get("/patient-behavior", response_model=PatientBehaviorResponse)
+def get_patient_behavior_analytics(db: Session = Depends(get_db)):
+    """
+    Get patient behavior patterns including:
+    - Distribution of patients by number of confirmed appointments
+    - Top services booked by patients with confirmed appointments
+    """
+    # Count confirmed appointments per patient
+    confirmed_appointments_per_patient = (
+        db.query(
+            Appointment.patient_id,
+            func.count(Appointment.id).label("appointment_count"),
+        )
+        .filter(Appointment.status == "confirmed")
+        .group_by(Appointment.patient_id)
+        .subquery()
+    )
+
+    # Categorize patients by appointment count ranges
+    appointment_count_case = case(
+        (confirmed_appointments_per_patient.c.appointment_count == 1, "1"),
+        (confirmed_appointments_per_patient.c.appointment_count == 2, "2"),
+        (confirmed_appointments_per_patient.c.appointment_count == 3, "3"),
+        (confirmed_appointments_per_patient.c.appointment_count == 4, "4"),
+        (confirmed_appointments_per_patient.c.appointment_count == 5, "5"),
+        (confirmed_appointments_per_patient.c.appointment_count >= 6, "6+"),
+        else_=None,
+    )
+
+    # Get distribution of patients by appointment count
+    patients_by_appointment_count_query = (
+        db.query(
+            appointment_count_case.label("appointment_count_range"),
+            func.count(confirmed_appointments_per_patient.c.patient_id).label(
+                "patient_count"
+            ),
+        )
+        .group_by(appointment_count_case)
+        .all()
+    )
+
+    # Initialize all ranges to 0, then update with actual counts
+    appointment_count_ranges = ["1", "2", "3", "4", "5", "6+"]
+    patients_by_appointment_count = {
+        range_name: 0 for range_name in appointment_count_ranges
+    }
+    patients_by_appointment_count.update(
+        {
+            range_name: patient_count
+            for range_name, patient_count in patients_by_appointment_count_query
+            if range_name
+        }
+    )
+
+    # Top services booked by patients with confirmed appointments
+    # Join confirmed appointments -> appointment_services -> services
+    top_services_query = (
+        db.query(
+            Service.id,
+            Service.name,
+            func.count(
+                func.distinct(AppointmentService.appointment_id)
+            ).label("count"),
+            func.coalesce(func.sum(Payment.amount), 0).label("revenue"),
+        )
+        .join(
+            AppointmentService,
+            Service.id == AppointmentService.service_id,
+        )
+        .join(
+            Appointment,
+            AppointmentService.appointment_id == Appointment.id,
+        )
+        .filter(Appointment.status == "confirmed")
+        .outerjoin(
+            Payment,
+            (Payment.service_id == Service.id)
+            & (Payment.status == "paid")
+            & (Payment.appointment_id == Appointment.id),
+        )
+        .group_by(Service.id, Service.name)
+        .order_by(
+            func.count(func.distinct(AppointmentService.appointment_id)).desc()
+        )
+        .limit(10)
+        .all()
+    )
+
+    top_services = [
+        TopServiceResponse(
+            id=service_id,
+            name=name,
+            count=count,
+            revenue=revenue,
+        )
+        for service_id, name, count, revenue in top_services_query
+    ]
+
+    return PatientBehaviorResponse(
+        patientsByAppointmentCount=patients_by_appointment_count,
+        topServicesByPatients=top_services,
     )

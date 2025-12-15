@@ -9,3 +9,5 @@ export { DemographicsCard } from "./demographics-card";
 export { AcquisitionCard } from "./acquisition-card";
 export { ServicesCard } from "./services-card";
 export { AppointmentsCard } from "./appointments-card";
+export { BusiestProvidersCard } from "./busiest-providers-card";
+export { PatientBehaviorCard } from "./patient-behavior-card";

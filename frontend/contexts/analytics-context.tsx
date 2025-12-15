@@ -9,10 +9,17 @@ import {
   startTransition,
   type ReactNode,
 } from "react";
-import { getPatientAnalytics, getBusinessAnalytics } from "@/lib/api";
+import {
+  getPatientAnalytics,
+  getBusinessAnalytics,
+  getProviderAnalytics,
+  getPatientBehaviorAnalytics,
+} from "@/lib/api";
 import type {
   PatientAnalyticsResponse,
   BusinessAnalyticsResponse,
+  ProviderAnalyticsResponse,
+  PatientBehaviorResponse,
 } from "@/lib/types";
 
 interface LoadingState<T> {
@@ -24,12 +31,16 @@ interface LoadingState<T> {
 interface AnalyticsContextValue {
   patients: LoadingState<PatientAnalyticsResponse>;
   business: LoadingState<BusinessAnalyticsResponse>;
+  providers: LoadingState<ProviderAnalyticsResponse>;
+  patientBehavior: LoadingState<PatientBehaviorResponse>;
   refresh: () => void;
 }
 
 const STORAGE_KEYS = {
   PATIENTS: "analytics_patients",
   BUSINESS: "analytics_business",
+  PROVIDERS: "analytics_providers",
+  PATIENT_BEHAVIOR: "analytics_patient_behavior",
 } as const;
 
 // Helper functions for localStorage operations
@@ -68,6 +79,22 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
 
   const [business, setBusiness] = useState<
     LoadingState<BusinessAnalyticsResponse>
+  >({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  const [providers, setProviders] = useState<
+    LoadingState<ProviderAnalyticsResponse>
+  >({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  const [patientBehavior, setPatientBehavior] = useState<
+    LoadingState<PatientBehaviorResponse>
   >({
     data: null,
     loading: true,
@@ -118,14 +145,60 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const fetchProviders = useCallback(async (showLoading = true) => {
+    setProviders((prev) => ({
+      ...prev,
+      loading: showLoading && prev.data === null,
+      error: null,
+    }));
+    try {
+      const data = await getProviderAnalytics();
+      setProviders({ data, loading: false, error: null });
+      saveToStorage(STORAGE_KEYS.PROVIDERS, data);
+    } catch (err) {
+      setProviders({
+        data: null,
+        loading: false,
+        error:
+          err instanceof Error
+            ? err.message
+            : "Couldn't get provider analytics",
+      });
+    }
+  }, []);
+
+  const fetchPatientBehavior = useCallback(async (showLoading = true) => {
+    setPatientBehavior((prev) => ({
+      ...prev,
+      loading: showLoading && prev.data === null,
+      error: null,
+    }));
+    try {
+      const data = await getPatientBehaviorAnalytics();
+      setPatientBehavior({ data, loading: false, error: null });
+      saveToStorage(STORAGE_KEYS.PATIENT_BEHAVIOR, data);
+    } catch (err) {
+      setPatientBehavior({
+        data: null,
+        loading: false,
+        error:
+          err instanceof Error
+            ? err.message
+            : "Couldn't get patient behavior analytics",
+      });
+    }
+  }, []);
+
   const refresh = useCallback(
     async (showLoading = true) => {
       await Promise.all([
         fetchPatients(showLoading),
         fetchBusiness(showLoading),
+        fetchProviders(showLoading),
+        fetchPatientBehavior(showLoading),
       ]);
     },
-    [fetchPatients, fetchBusiness]
+    [fetchPatients, fetchBusiness, fetchProviders, fetchPatientBehavior]
   );
 
   // Load from localStorage and fetch fresh data (client-side only)
@@ -139,8 +212,18 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
       const cachedBusiness = loadFromStorage<BusinessAnalyticsResponse>(
         STORAGE_KEYS.BUSINESS
       );
+      const cachedProviders = loadFromStorage<ProviderAnalyticsResponse>(
+        STORAGE_KEYS.PROVIDERS
+      );
+      const cachedPatientBehavior = loadFromStorage<PatientBehaviorResponse>(
+        STORAGE_KEYS.PATIENT_BEHAVIOR
+      );
 
-      const hasCachedData = cachedPatients !== null && cachedBusiness !== null;
+      const hasCachedData =
+        cachedPatients !== null &&
+        cachedBusiness !== null &&
+        cachedProviders !== null &&
+        cachedPatientBehavior !== null;
 
       // Always fetch fresh data in background to keep cache updated
       // Don't show loading if we have cached data (silent refresh)
@@ -154,6 +237,16 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
         if (cachedBusiness) {
           setBusiness({ data: cachedBusiness, loading: false, error: null });
         }
+        if (cachedProviders) {
+          setProviders({ data: cachedProviders, loading: false, error: null });
+        }
+        if (cachedPatientBehavior) {
+          setPatientBehavior({
+            data: cachedPatientBehavior,
+            loading: false,
+            error: null,
+          });
+        }
       });
     }
     loadData();
@@ -164,6 +257,8 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
       value={{
         patients,
         business,
+        providers,
+        patientBehavior,
         refresh,
       }}
     >
@@ -191,4 +286,14 @@ export function usePatientAnalytics() {
 export function useBusinessAnalytics() {
   const { business } = useAnalyticsContext();
   return business;
+}
+
+export function useProviderAnalytics() {
+  const { providers } = useAnalyticsContext();
+  return providers;
+}
+
+export function usePatientBehaviorAnalytics() {
+  const { patientBehavior } = useAnalyticsContext();
+  return patientBehavior;
 }

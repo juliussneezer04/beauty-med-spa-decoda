@@ -37,3 +37,29 @@ class BusinessAnalyticsResponse(BaseModel):
     avgServicesPerAppointment: str
     appointmentsByDay: dict[str, int]
     totalAppointments: int
+
+
+class TopProviderResponse(BaseModel):
+    """Schema for top provider item."""
+
+    id: str
+    name: str
+    email: str
+    phone: str
+    appointmentCount: int
+    revenue: int
+
+
+class ProviderAnalyticsResponse(BaseModel):
+    """Schema for provider analytics (busiest providers)."""
+
+    topProviders: list[TopProviderResponse]
+
+
+class PatientBehaviorResponse(BaseModel):
+    """Schema for patient behavior analytics."""
+
+    # Distribution of patients by number of confirmed appointments
+    patientsByAppointmentCount: dict[str, int]
+    # Top services booked by patients with confirmed appointments
+    topServicesByPatients: list[TopServiceResponse]

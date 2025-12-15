@@ -106,6 +106,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/analytics/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Provider Analytics
+         * @description Get top 5 busiest providers by appointment count.
+         */
+        get: operations["get_provider_analytics_api_analytics_providers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/analytics/patient-behavior": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Patient Behavior Analytics
+         * @description Get patient behavior patterns including:
+         *     - Distribution of patients by number of confirmed appointments
+         *     - Top services booked by patients with confirmed appointments
+         */
+        get: operations["get_patient_behavior_analytics_api_analytics_patient_behavior_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/": {
         parameters: {
             query?: never;
@@ -223,6 +265,18 @@ export interface components {
             };
         };
         /**
+         * PatientBehaviorResponse
+         * @description Schema for patient behavior analytics.
+         */
+        PatientBehaviorResponse: {
+            /** Patientsbyappointmentcount */
+            patientsByAppointmentCount: {
+                [key: string]: number;
+            };
+            /** Topservicesbypatients */
+            topServicesByPatients: components["schemas"]["TopServiceResponse"][];
+        };
+        /**
          * PatientDetailResponse
          * @description Schema for detailed patient view with appointments.
          */
@@ -288,6 +342,14 @@ export interface components {
             created_date: string;
         };
         /**
+         * ProviderAnalyticsResponse
+         * @description Schema for provider analytics (busiest providers).
+         */
+        ProviderAnalyticsResponse: {
+            /** Topproviders */
+            topProviders: components["schemas"]["TopProviderResponse"][];
+        };
+        /**
          * ProviderListResponse
          * @description Schema for paginated provider list.
          */
@@ -336,6 +398,24 @@ export interface components {
             duration: number;
             /** Created Date */
             created_date: string;
+        };
+        /**
+         * TopProviderResponse
+         * @description Schema for top provider item.
+         */
+        TopProviderResponse: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Email */
+            email: string;
+            /** Phone */
+            phone: string;
+            /** Appointmentcount */
+            appointmentCount: number;
+            /** Revenue */
+            revenue: number;
         };
         /**
          * TopServiceResponse
@@ -516,6 +596,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BusinessAnalyticsResponse"];
+                };
+            };
+        };
+    };
+    get_provider_analytics_api_analytics_providers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderAnalyticsResponse"];
+                };
+            };
+        };
+    };
+    get_patient_behavior_analytics_api_analytics_patient_behavior_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatientBehaviorResponse"];
                 };
             };
         };

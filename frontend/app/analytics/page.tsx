@@ -10,6 +10,8 @@ import {
   ServicesCard,
   AppointmentsCard,
   TotalCustomersCard,
+  BusiestProvidersCard,
+  PatientBehaviorCard,
 } from "@/components/analytics";
 
 export default function AnalyticsPage() {
@@ -42,6 +44,12 @@ export default function AnalyticsPage() {
 
       {/* Appointment Patterns */}
       <AppointmentsCard />
+
+      {/* Busiest Providers */}
+      <BusiestProvidersCard />
+
+      {/* Patient Behavior Patterns */}
+      <PatientBehaviorCard />
     </div>
   );
 }

@@ -9,6 +9,8 @@ import type {
   ProviderListResponse,
   PatientAnalyticsResponse,
   BusinessAnalyticsResponse,
+  ProviderAnalyticsResponse,
+  PatientBehaviorResponse,
 } from "@/lib/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
@@ -120,4 +122,18 @@ export async function getPatientAnalytics(): Promise<PatientAnalyticsResponse> {
  */
 export async function getBusinessAnalytics(): Promise<BusinessAnalyticsResponse> {
   return apiFetch<BusinessAnalyticsResponse>("/api/analytics/business");
+}
+
+/**
+ * Get provider analytics (busiest providers).
+ */
+export async function getProviderAnalytics(): Promise<ProviderAnalyticsResponse> {
+  return apiFetch<ProviderAnalyticsResponse>("/api/analytics/providers");
+}
+
+/**
+ * Get patient behavior analytics.
+ */
+export async function getPatientBehaviorAnalytics(): Promise<PatientBehaviorResponse> {
+  return apiFetch<PatientBehaviorResponse>("/api/analytics/patient-behavior");
 }
