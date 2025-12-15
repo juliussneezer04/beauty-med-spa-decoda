@@ -14,6 +14,7 @@ import {
 import { formatCurrency, formatNumberShort } from "@/lib/utils";
 import { useBusinessAnalytics } from "@/contexts/analytics-context";
 import { Skeleton } from "@/components/ui/skeleton";
+import { COMPANY_NAME } from "@/constants";
 
 function LoadingServicesCard() {
   return (
@@ -100,8 +101,8 @@ export const ServicesCard = memo(function ServicesCard() {
 
   const isSameService = topServiceByCount.name === topServiceByRevenue.name;
   const titleText = isSameService
-    ? "Beauty Med Spa's Most Popular (& Profitable) Service"
-    : "Beauty Med Spa's Most Popular Service";
+    ? `${COMPANY_NAME}'s Most Popular (& Profitable) Service`
+    : `${COMPANY_NAME}'s Most Popular Service`;
 
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">

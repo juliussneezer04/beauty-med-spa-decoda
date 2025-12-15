@@ -6,12 +6,13 @@ import "./globals.css";
 import { Topbar } from "@/components/topbar";
 import { Footer } from "@/components/footer";
 import { AnalyticsProvider } from "@/contexts/analytics-context";
+import { COMPANY_NAME } from "@/constants";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Beauty Med Spa Dashboard",
+  title: `${COMPANY_NAME} Dashboard`,
   description: "Patient management and analytics dashboard",
   generator: "Vishnu Sundaresan",
   icons: {
