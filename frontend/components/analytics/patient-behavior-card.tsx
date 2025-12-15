@@ -61,19 +61,18 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
   }
 
   if (error || !data) {
-    return (
-      <ErrorPatientBehaviorCard error={error || "No data available"} />
-    );
+    return <ErrorPatientBehaviorCard error={error || "No data available"} />;
   }
 
   // Prepare data for appointments distribution chart
-  const appointmentsData = Object.entries(
-    data.patientsByAppointmentCount
-  ).map(([name, value], index) => ({
-    name: name === "6+" ? "6+" : `${name} appointment${name === "1" ? "" : "s"}`,
-    value,
-    fill: APP_COLORS[index % APP_COLORS.length],
-  }));
+  const appointmentsData = Object.entries(data.patientsByAppointmentCount).map(
+    ([name, value], index) => ({
+      name:
+        name === "6+" ? "6+" : `${name} appointment${name === "1" ? "" : "s"}`,
+      value,
+      fill: APP_COLORS[index % APP_COLORS.length],
+    })
+  );
 
   // Prepare data for top services chart
   const servicesData = data.topServicesByPatients.map((service, index) => ({
@@ -97,8 +96,8 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
         Patient Behavior Patterns
       </h2>
       <p className="mb-6 text-sm text-gray-600">
-        Understanding how patients interact with confirmed appointments and which
-        services they prefer
+        Understanding how patients interact with confirmed appointments and
+        which services they prefer
       </p>
       <div className="grid gap-8 md:grid-cols-2">
         {/* Patients by Appointment Count */}
@@ -128,9 +127,8 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
             </BarChart>
           </ResponsiveContainer>
           <p className="mt-2 text-center text-xs text-gray-500">
-            Insight: Most patients have{" "}
-            <b>{mostCommonAppointmentCount.name}</b> (
-            {formatNumberShort(mostCommonAppointmentCount.value)} patients)
+            Insight: Most patients have <b>{mostCommonAppointmentCount.name}</b>{" "}
+            ({formatNumberShort(mostCommonAppointmentCount.value)} patients)
           </p>
         </div>
 
@@ -170,4 +168,3 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
     </div>
   );
 });
-

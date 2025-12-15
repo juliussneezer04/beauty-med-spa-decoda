@@ -66,9 +66,7 @@ export const BusiestProvidersCard = memo(function BusiestProvidersCard() {
   }
 
   if (error || !data) {
-    return (
-      <ErrorBusiestProvidersCard error={error || "No data available"} />
-    );
+    return <ErrorBusiestProvidersCard error={error || "No data available"} />;
   }
 
   return (
@@ -87,4 +85,3 @@ export const BusiestProvidersCard = memo(function BusiestProvidersCard() {
     </div>
   );
 });
-

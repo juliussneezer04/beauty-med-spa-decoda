@@ -96,9 +96,15 @@ export async function getProviders(
 ): Promise<ProviderListResponse> {
   const queryParams = new URLSearchParams();
 
-  if (params.cursor) queryParams.append("cursor", params.cursor);
-  if (params.limit) queryParams.append("limit", params.limit.toString());
-  if (params.search) queryParams.append("search", params.search);
+  if (params.cursor) {
+    queryParams.append("cursor", params.cursor);
+  }
+  if (params.limit) {
+    queryParams.append("limit", params.limit.toString());
+  }
+  if (params.search) {
+    queryParams.append("search", params.search);
+  }
 
   const queryString = queryParams.toString();
   const endpoint = `/api/providers${queryString ? `?${queryString}` : ""}`;
@@ -107,7 +113,7 @@ export async function getProviders(
 }
 
 // ============================================================================
-// Analytics API (2 consolidated endpoints)
+// Analytics API (4 consolidated endpoints)
 // ============================================================================
 
 /**
