@@ -68,7 +68,11 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
   const appointmentsData = Object.entries(data.patientsByAppointmentCount).map(
     ([name, value], index) => ({
       name:
-        name === "6+" ? "6+" : `${name} appointment${name === "1" ? "" : "s"}`,
+        name === "6+"
+          ? "6+"
+          : name === "0"
+            ? "0 appointments"
+            : `${name} appointment${name === "1" ? "" : "s"}`,
       value,
       fill: APP_COLORS[index % APP_COLORS.length],
     })

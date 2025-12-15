@@ -61,6 +61,14 @@ export const AppointmentsCard = memo(function AppointmentsCard() {
     })
   );
 
+  // Calculate confirmed appointment percentage
+  const confirmedCount = data.statusDistribution.confirmed || 0;
+  const confirmedPercentage =
+    data.totalAppointments > 0
+      ? ((confirmedCount / data.totalAppointments) * 100).toFixed(1)
+      : "0.0";
+  const isMajorityNonConfirmed = confirmedCount < data.totalAppointments / 2;
+
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
       <h2 className="mb-6 text-xl font-semibold text-gray-900">
@@ -113,6 +121,23 @@ export const AppointmentsCard = memo(function AppointmentsCard() {
           </div>
         </div>
       </div>
+      <p className="mt-4 text-center text-xs text-gray-500">
+        Insight: {isMajorityNonConfirmed ? (
+          <>
+            The majority of appointments are <b>non-confirmed</b> with only{" "}
+            <b>{confirmedPercentage}%</b> confirmed appointments (
+            {formatNumberShort(confirmedCount)} out of{" "}
+            {formatNumberShort(data.totalAppointments)})
+          </>
+        ) : (
+          <>
+            <b>{confirmedPercentage}%</b> of appointments are confirmed (
+            {formatNumberShort(confirmedCount)} out of{" "}
+            {formatNumberShort(data.totalAppointments)})
+          </>
+        )}
+        .
+      </p>
     </div>
   );
 });

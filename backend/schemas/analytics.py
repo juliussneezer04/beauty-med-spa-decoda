@@ -59,7 +59,7 @@ class ProviderAnalyticsResponse(BaseModel):
 class PatientBehaviorResponse(BaseModel):
     """Schema for patient behavior analytics."""
 
-    # Distribution of patients by number of confirmed appointments
+    # Distribution of patients by number of appointments (all statuses)
     patientsByAppointmentCount: dict[str, int]
-    # Top services booked by patients with confirmed appointments
+    # Top services booked by patients (all appointments)
     topServicesByPatients: list[TopServiceResponse]

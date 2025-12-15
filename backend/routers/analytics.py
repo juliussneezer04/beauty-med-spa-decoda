@@ -320,28 +320,42 @@ def get_provider_analytics(db: Session = Depends(get_db)):
 def get_patient_behavior_analytics(db: Session = Depends(get_db)):
     """
     Get patient behavior patterns including:
-    - Distribution of patients by number of confirmed appointments
-    - Top services booked by patients with confirmed appointments
+    - Distribution of patients by number of appointments (all statuses)
+    - Top services booked by patients (all appointments)
     """
-    # Count confirmed appointments per patient
-    confirmed_appointments_per_patient = (
+    # Count all appointments per patient (any status)
+    appointments_per_patient = (
         db.query(
             Appointment.patient_id,
             func.count(Appointment.id).label("appointment_count"),
         )
-        .filter(Appointment.status == "confirmed")
         .group_by(Appointment.patient_id)
+        .subquery()
+    )
+
+    # Get all patients with their appointment counts (including patients with 0 appointments)
+    patients_with_appointment_counts = (
+        db.query(
+            Patient.id,
+            func.coalesce(appointments_per_patient.c.appointment_count, 0).label(
+                "appointment_count"
+            ),
+        )
+        .outerjoin(
+            appointments_per_patient, Patient.id == appointments_per_patient.c.patient_id
+        )
         .subquery()
     )
 
     # Categorize patients by appointment count ranges
     appointment_count_case = case(
-        (confirmed_appointments_per_patient.c.appointment_count == 1, "1"),
-        (confirmed_appointments_per_patient.c.appointment_count == 2, "2"),
-        (confirmed_appointments_per_patient.c.appointment_count == 3, "3"),
-        (confirmed_appointments_per_patient.c.appointment_count == 4, "4"),
-        (confirmed_appointments_per_patient.c.appointment_count == 5, "5"),
-        (confirmed_appointments_per_patient.c.appointment_count >= 6, "6+"),
+        (patients_with_appointment_counts.c.appointment_count == 0, "0"),
+        (patients_with_appointment_counts.c.appointment_count == 1, "1"),
+        (patients_with_appointment_counts.c.appointment_count == 2, "2"),
+        (patients_with_appointment_counts.c.appointment_count == 3, "3"),
+        (patients_with_appointment_counts.c.appointment_count == 4, "4"),
+        (patients_with_appointment_counts.c.appointment_count == 5, "5"),
+        (patients_with_appointment_counts.c.appointment_count >= 6, "6+"),
         else_=None,
     )
 
@@ -349,16 +363,14 @@ def get_patient_behavior_analytics(db: Session = Depends(get_db)):
     patients_by_appointment_count_query = (
         db.query(
             appointment_count_case.label("appointment_count_range"),
-            func.count(confirmed_appointments_per_patient.c.patient_id).label(
-                "patient_count"
-            ),
+            func.count(patients_with_appointment_counts.c.id).label("patient_count"),
         )
         .group_by(appointment_count_case)
         .all()
     )
 
     # Initialize all ranges to 0, then update with actual counts
-    appointment_count_ranges = ["1", "2", "3", "4", "5", "6+"]
+    appointment_count_ranges = ["0", "1", "2", "3", "4", "5", "6+"]
     patients_by_appointment_count = {
         range_name: 0 for range_name in appointment_count_ranges
     }
@@ -370,36 +382,22 @@ def get_patient_behavior_analytics(db: Session = Depends(get_db)):
         }
     )
 
-    # Top services booked by patients with confirmed appointments
-    # Join confirmed appointments -> appointment_services -> services
+    # Top services booked by patients
+    # Join appointments -> appointment_services -> services
     top_services_query = (
         db.query(
             Service.id,
             Service.name,
-            func.count(
-                func.distinct(AppointmentService.appointment_id)
-            ).label("count"),
+            func.count(AppointmentService.appointment_id).label("count"),
             func.coalesce(func.sum(Payment.amount), 0).label("revenue"),
         )
-        .join(
-            AppointmentService,
-            Service.id == AppointmentService.service_id,
-        )
-        .join(
-            Appointment,
-            AppointmentService.appointment_id == Appointment.id,
-        )
-        .filter(Appointment.status == "confirmed")
+        .outerjoin(AppointmentService, Service.id == AppointmentService.service_id)
         .outerjoin(
             Payment,
-            (Payment.service_id == Service.id)
-            & (Payment.status == "paid")
-            & (Payment.appointment_id == Appointment.id),
+            (Payment.service_id == Service.id) & (Payment.status == "paid"),
         )
         .group_by(Service.id, Service.name)
-        .order_by(
-            func.count(func.distinct(AppointmentService.appointment_id)).desc()
-        )
+        .order_by(func.count(AppointmentService.appointment_id).desc())
         .limit(10)
         .all()
     )
