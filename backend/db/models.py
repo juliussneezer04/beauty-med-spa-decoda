@@ -210,8 +210,16 @@ class AppointmentService(Base):
     __table_args__ = (
         # Composite indexes for analytics queries
         # Note: (appointment_id, service_id) is already covered by composite primary key
-        Index("idx_appointment_service_provider_appointment", "provider_id", "appointment_id"),
-        Index("idx_appointment_service_service_appointment", "service_id", "appointment_id"),
+        Index(
+            "idx_appointment_service_provider_appointment",
+            "provider_id",
+            "appointment_id",
+        ),
+        Index(
+            "idx_appointment_service_service_appointment",
+            "service_id",
+            "appointment_id",
+        ),
         Index("idx_appointment_service_appointment_start", "appointment_id", "start"),
     )
 
