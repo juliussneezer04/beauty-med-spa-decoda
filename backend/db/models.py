@@ -52,6 +52,13 @@ class Patient(Base):
     """
 
     __tablename__ = "patient"
+    __table_args__ = (
+        # Indexes for analytics queries
+        Index("idx_patient_gender", "gender"),
+        Index("idx_patient_source", "source"),
+        Index("idx_patient_created_date", "created_date"),
+        Index("idx_patient_date_of_birth", "date_of_birth"),
+    )
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
     first_name: Mapped[str] = mapped_column(String)
@@ -159,6 +166,11 @@ class Appointment(Base):
     """
 
     __tablename__ = "appointment"
+    __table_args__ = (
+        # Composite indexes for analytics queries
+        Index("idx_appointment_patient_status", "patient_id", "status"),
+        Index("idx_appointment_patient_created", "patient_id", "created_date"),
+    )
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
     patient_id: Mapped[str] = mapped_column(ForeignKey("patient.id"))
@@ -195,7 +207,13 @@ class AppointmentService(Base):
     """
 
     __tablename__ = "appointment_service"
-    __table_args__ = ()
+    __table_args__ = (
+        # Composite indexes for analytics queries
+        # Note: (appointment_id, service_id) is already covered by composite primary key
+        Index("idx_appointment_service_provider_appointment", "provider_id", "appointment_id"),
+        Index("idx_appointment_service_service_appointment", "service_id", "appointment_id"),
+        Index("idx_appointment_service_appointment_start", "appointment_id", "start"),
+    )
 
     appointment_id: Mapped[str] = mapped_column(
         ForeignKey("appointment.id"), primary_key=True
@@ -233,7 +251,12 @@ class Payment(Base):
 
     __tablename__ = "payment"
     __table_args__ = (
-        # Composite indexes for common analytics queries
+        # Composite indexes for analytics queries
+        # Status is frequently filtered, so it's first in composite indexes
+        Index("idx_payment_status_service", "status", "service_id"),
+        Index("idx_payment_status_patient", "status", "patient_id"),
+        Index("idx_payment_status_provider", "status", "provider_id"),
+        Index("idx_payment_status_amount", "status", "amount"),
     )
 
     id: Mapped[str] = mapped_column(String, primary_key=True)

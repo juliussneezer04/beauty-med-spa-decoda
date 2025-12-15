@@ -166,17 +166,34 @@ def get_patient_by_id(
         .all()
     )
 
-    appointments_with_services = []
-    for appointment in appointments:
-        # Get services for this appointment
-        appointment_services = (
-            db.query(AppointmentService, Service)
-            .join(Service, AppointmentService.service_id == Service.id)
-            .filter(AppointmentService.appointment_id == appointment.id)
-            .all()
+    if not appointments:
+        return PatientDetailResponse(
+            patient=patient_to_response(patient),
+            appointments=[],
         )
 
-        services = [
+    # Get all appointment IDs
+    appointment_ids = [appointment.id for appointment in appointments]
+
+    # Fetch all appointment services and services in one query
+    appointment_services_data = (
+        db.query(AppointmentService, Service)
+        .join(Service, AppointmentService.service_id == Service.id)
+        .filter(AppointmentService.appointment_id.in_(appointment_ids))
+        .all()
+    )
+
+    # Fetch all payments in one query
+    payments = (
+        db.query(Payment).filter(Payment.appointment_id.in_(appointment_ids)).all()
+    )
+
+    # Group services by appointment_id
+    services_by_appointment = {}
+    for appointment_service, service in appointment_services_data:
+        if appointment_service.appointment_id not in services_by_appointment:
+            services_by_appointment[appointment_service.appointment_id] = []
+        services_by_appointment[appointment_service.appointment_id].append(
             ServiceResponse(
                 id=service.id,
                 name=service.name,
@@ -185,14 +202,17 @@ def get_patient_by_id(
                 duration=service.duration,
                 created_date=service.created_date.isoformat(),
             )
-            for _, service in appointment_services
-        ]
-
-        # Get payment for this appointment (if exists)
-        payment_record = (
-            db.query(Payment).filter(Payment.appointment_id == appointment.id).first()
         )
 
+    # Group payments by appointment_id (one-to-one relationship)
+    payments_by_appointment = {payment.appointment_id: payment for payment in payments}
+
+    # Build response
+    appointments_with_services = []
+    for appointment in appointments:
+        services = services_by_appointment.get(appointment.id, [])
+
+        payment_record = payments_by_appointment.get(appointment.id)
         payment = None
         if payment_record:
             payment = PaymentResponse(

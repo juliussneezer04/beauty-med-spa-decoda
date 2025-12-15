@@ -63,8 +63,8 @@ def create_index(engine, table_name: str, index_info: dict):
     columns = index_info["columns"]
     unique = index_info.get("unique", False)
 
-    # Build the CREATE INDEX statement
-    columns_str = ", ".join(columns)
+    # Build the CREATE INDEX statement with quoted column names
+    columns_str = ", ".join(f'"{col}"' for col in columns)
 
     # PostgreSQL supports IF NOT EXISTS for CREATE INDEX
     if unique:
@@ -109,8 +109,11 @@ def add_missing_indexes():
                     print(f"  ✓ Index '{index_name}' already exists")
                     total_existing += 1
                 else:
+                    columns_display = ", ".join(index_info["columns"])
+                    is_composite = len(index_info["columns"]) > 1
+                    index_type = "composite" if is_composite else "single-column"
                     print(
-                        f"  + Creating index '{index_name}' on {', '.join(index_info['columns'])}"
+                        f"  + Creating {index_type} index '{index_name}' on ({columns_display})"
                     )
                     if create_index(engine, table_name, index_info):
                         total_added += 1
