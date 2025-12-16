@@ -18,3 +18,4 @@ While this project is a complete MVP for Beauty Med Spa, there are still some ar
 - Adding Unit and E2E tests to the API
 - Adding logging and monitoring to the backend
 - Adding rate limiting to the backend
+- Adding Asynchronous Support to the SQLAlchemy queries to perform batch operations concurrently
