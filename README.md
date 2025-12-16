@@ -1,5 +1,7 @@
 # Beauty Med Spa Patient Dashboard
 
+# Requirements
+
 Beauty Med Spa is a client of Decoda. They have requested a new patient dashboard to better understand their patients and business operations.
 
 ## Background
@@ -111,10 +113,36 @@ The dashboard follows a clean, professional design aesthetic appropriate for a m
 
 The design prioritizes usability and clarity, ensuring that front desk staff and management can quickly access the information they need to make informed decisions.
 
-*You should follow our design style: https://www.decodahealth.com/*
+_You should follow our design style: https://www.decodahealth.com/_
 
 ## Deliverables
 
 - Working, well written and **deployed** application with database, backend, frontend and a publically available link.
 - GitHub link to the repository.
 - README with any thoughts you have or enhancements you would like to make later.
+
+---
+
+<!--- Divider line above. --->
+
+# TODOs for this project
+
+While this project is a complete MVP for Beauty Med Spa, there are still some areas to improve upon if time permits.
+
+## Frontend
+
+- Authentication
+- Uniform data caching and retrieval for all important/costly data operations
+  - Consider using tanstack query for this
+- Quick help/give feedback section in the site to answer questions
+- Analytics built into the app, e.g. Posthog to understand user behavior and engagement
+- Exporting data to CSV, Excel, etc.
+
+## Backend
+
+- Authentication
+- Natural language query support for statistics using a query registry and tool execution
+- Adding Unit and E2E tests to the API
+- Adding logging and monitoring to the backend
+- Adding rate limiting to the backend
+- Adding Asynchronous Support to the SQLAlchemy queries to perform batch operations concurrently
