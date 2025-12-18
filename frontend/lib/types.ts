@@ -19,30 +19,19 @@ export type ProviderListResponse =
   components["schemas"]["ProviderListResponse"];
 
 // Analytics types (from generated OpenAPI types)
-export type TopServiceResponse = components["schemas"]["TopServiceResponse"];
+export type ServiceByRevenueResponse =
+  components["schemas"]["ServiceByRevenueResponse"];
+export type ServiceByBookingsResponse =
+  components["schemas"]["ServiceByBookingsResponse"];
 export type PatientAnalyticsResponse =
   components["schemas"]["PatientAnalyticsResponse"];
 export type BusinessAnalyticsResponse =
   components["schemas"]["BusinessAnalyticsResponse"];
-
-// New analytics types (will be in OpenAPI after backend restart)
-export interface TopProviderResponse {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  appointmentCount: number;
-  revenue: number;
-}
-
-export interface ProviderAnalyticsResponse {
-  topProviders: TopProviderResponse[];
-}
-
-export interface PatientBehaviorResponse {
-  patientsByAppointmentCount: Record<string, number>;
-  topServicesByPatients: TopServiceResponse[];
-}
+export type TopProviderResponse = components["schemas"]["TopProviderResponse"];
+export type ProviderAnalyticsResponse =
+  components["schemas"]["ProviderAnalyticsResponse"];
+export type PatientBehaviorResponse =
+  components["schemas"]["PatientBehaviorResponse"];
 
 // Generic paginated response (for backwards compatibility)
 export interface PaginatedResponse<T> {

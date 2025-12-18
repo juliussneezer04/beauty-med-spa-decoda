@@ -14,7 +14,7 @@ import {
 import { usePatientBehaviorAnalytics } from "@/contexts/analytics-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import { APP_COLORS } from "@/lib/colors";
-import { formatNumberShort } from "@/lib/utils";
+import { formatCurrency, formatNumberShort } from "@/lib/utils";
 
 function LoadingPatientBehaviorCard() {
   return (
@@ -22,16 +22,22 @@ function LoadingPatientBehaviorCard() {
       <h2 className="mb-6 text-xl font-semibold text-gray-900">
         Patient Behavior Patterns
       </h2>
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-8 md:grid-cols-3">
         <div>
           <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
-            Patients by Confirmed Appointments
+            Patients by Appointments
           </h3>
           <Skeleton className="h-[300px] w-full" />
         </div>
         <div>
           <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
-            Top Services Booked
+            Top Services by Revenue
+          </h3>
+          <Skeleton className="h-[300px] w-full" />
+        </div>
+        <div>
+          <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
+            Top Services by Bookings
           </h3>
           <Skeleton className="h-[300px] w-full" />
         </div>
@@ -64,6 +70,11 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
     return <ErrorPatientBehaviorCard error={error || "No data available"} />;
   }
 
+  // Guard against stale cached data missing new fields
+  if (!data.topServicesByRevenue || !data.topServicesByBookings) {
+    return <LoadingPatientBehaviorCard />;
+  }
+
   // Prepare data for appointments distribution chart
   const appointmentsData = Object.entries(data.patientsByAppointmentCount).map(
     ([name, value], index) => ({
@@ -78,11 +89,17 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
     })
   );
 
-  // Prepare data for top services chart
-  const servicesData = data.topServicesByPatients.map((service, index) => ({
+  // Prepare data for top services by revenue
+  const revenueData = data.topServicesByRevenue.map((service, index) => ({
+    name: service.name,
+    revenue: service.revenue,
+    fill: APP_COLORS[index % APP_COLORS.length],
+  }));
+
+  // Prepare data for top services by bookings
+  const bookingsData = data.topServicesByBookings.map((service, index) => ({
     name: service.name,
     count: service.count,
-    revenue: service.revenue,
     fill: APP_COLORS[index % APP_COLORS.length],
   }));
 
@@ -91,8 +108,8 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
     prev.value > current.value ? prev : current
   );
 
-  // Find top service
-  const topService = servicesData[0];
+  const topByRevenue = revenueData[0];
+  const topByBookings = bookingsData[0];
 
   return (
     <div className="rounded-2xl border border-blue-100 bg-white/70 p-6 shadow-sm backdrop-blur-sm">
@@ -100,21 +117,21 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
         Patient Behavior Patterns
       </h2>
       <p className="mb-6 text-sm text-gray-600">
-        Understanding how patients interact with confirmed appointments and
-        which services they prefer
+        Understanding how patients interact with appointments and which services
+        they prefer
       </p>
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-8 md:grid-cols-3">
         {/* Patients by Appointment Count */}
         <div>
           <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
-            Patients by Number of Confirmed Appointments
+            Patients by Number of Appointments
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={appointmentsData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
                 dataKey="name"
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 10 }}
                 angle={-45}
                 textAnchor="end"
                 height={80}
@@ -136,17 +153,53 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
           </p>
         </div>
 
-        {/* Top Services */}
+        {/* Top Services by Revenue */}
         <div>
           <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
-            Top Services Booked by Patients
+            Top Services by Revenue
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={servicesData}>
+            <BarChart data={revenueData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
                 dataKey="name"
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 10 }}
+                angle={-45}
+                textAnchor="end"
+                height={80}
+              />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                tickFormatter={(value) => formatCurrency(value, true)}
+              />
+              <Tooltip
+                formatter={(value: number) => formatCurrency(value)}
+                labelFormatter={(label) => `Service: ${label}`}
+              />
+              <Bar dataKey="revenue" radius={[8, 8, 0, 0]}>
+                {revenueData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+          <p className="mt-2 text-center text-xs text-gray-500">
+            Insight: <b>{topByRevenue.name}</b> generates{" "}
+            <b>{formatCurrency(topByRevenue.revenue, true)}</b>
+          </p>
+        </div>
+
+        {/* Top Services by Bookings */}
+        <div>
+          <h3 className="mb-4 text-center text-sm font-medium text-gray-600">
+            Top Services by Bookings
+          </h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={bookingsData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 10 }}
                 angle={-45}
                 textAnchor="end"
                 height={80}
@@ -157,15 +210,15 @@ export const PatientBehaviorCard = memo(function PatientBehaviorCard() {
                 labelFormatter={(label) => `Service: ${label}`}
               />
               <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                {servicesData.map((entry, index) => (
+                {bookingsData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
           <p className="mt-2 text-center text-xs text-gray-500">
-            Insight: <b>{topService.name}</b> is the most booked service with{" "}
-            <b>{formatNumberShort(topService.count)}</b> bookings
+            Insight: <b>{topByBookings.name}</b> has{" "}
+            <b>{formatNumberShort(topByBookings.count)}</b> bookings
           </p>
         </div>
       </div>

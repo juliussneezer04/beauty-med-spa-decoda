@@ -45,14 +45,16 @@ function ErrorServicesCard({ error }: { error: string }) {
   );
 }
 
+interface ScatterDataPoint {
+  name: string;
+  revenue: number;
+  count: number;
+}
+
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{
-    payload: {
-      name: string;
-      revenue: number;
-      count: number;
-    };
+    payload: ScatterDataPoint;
   }>;
 }
 
@@ -83,11 +85,34 @@ export const ServicesCard = memo(function ServicesCard() {
     return <ErrorServicesCard error={error || "No data available"} />;
   }
 
-  const scatterData = data.topServices.map((service) => ({
-    name: service.name,
-    revenue: service.revenue,
-    count: service.count,
-  }));
+  // Guard against stale cached data missing new fields
+  if (!data.topServicesByRevenue || !data.topServicesByBookings) {
+    return <LoadingServicesCard />;
+  }
+
+  // Create a map of service name -> revenue from revenue data
+  const revenueByName = new Map(
+    data.topServicesByRevenue.map((s) => [s.name, s.revenue])
+  );
+
+  // Create a map of service name -> count from bookings data
+  const countByName = new Map(
+    data.topServicesByBookings.map((s) => [s.name, s.count])
+  );
+
+  // Combine into scatter data - use all unique service names
+  const allServiceNames = new Set([
+    ...data.topServicesByRevenue.map((s) => s.name),
+    ...data.topServicesByBookings.map((s) => s.name),
+  ]);
+
+  const scatterData: ScatterDataPoint[] = Array.from(allServiceNames).map(
+    (name) => ({
+      name,
+      revenue: revenueByName.get(name) ?? 0,
+      count: countByName.get(name) ?? 0,
+    })
+  );
 
   const scatterDataSortedByCount = [...scatterData].sort(
     (a, b) => b.count - a.count
@@ -155,6 +180,7 @@ export const ServicesCard = memo(function ServicesCard() {
           with <b>~{formatNumberShort(topServiceByCount.count)}</b> bookings
           {isSameService ? (
             <Fragment>
+              {" "}
               and <b>{formatCurrency(topServiceByCount.revenue, true)}</b> in
               revenue
             </Fragment>
