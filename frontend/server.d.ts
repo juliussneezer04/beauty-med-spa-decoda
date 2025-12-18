@@ -214,8 +214,10 @@ export interface components {
          * @description Consolidated schema for business analytics (services + appointments).
          */
         BusinessAnalyticsResponse: {
-            /** Topservices */
-            topServices: components["schemas"]["TopServiceResponse"][];
+            /** Topservicesbyrevenue */
+            topServicesByRevenue: components["schemas"]["ServiceByRevenueResponse"][];
+            /** Topservicesbybookings */
+            topServicesByBookings: components["schemas"]["ServiceByBookingsResponse"][];
             /** Totalrevenue */
             totalRevenue: number;
             /** Averagepayment */
@@ -273,8 +275,10 @@ export interface components {
             patientsByAppointmentCount: {
                 [key: string]: number;
             };
-            /** Topservicesbypatients */
-            topServicesByPatients: components["schemas"]["TopServiceResponse"][];
+            /** Topservicesbyrevenue */
+            topServicesByRevenue: components["schemas"]["ServiceByRevenueResponse"][];
+            /** Topservicesbybookings */
+            topServicesByBookings: components["schemas"]["ServiceByBookingsResponse"][];
         };
         /**
          * PatientDetailResponse
@@ -382,6 +386,30 @@ export interface components {
             revenue: number;
         };
         /**
+         * ServiceByBookingsResponse
+         * @description Schema for service ranked by booking count.
+         */
+        ServiceByBookingsResponse: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Count */
+            count: number;
+        };
+        /**
+         * ServiceByRevenueResponse
+         * @description Schema for service ranked by revenue.
+         */
+        ServiceByRevenueResponse: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Revenue */
+            revenue: number;
+        };
+        /**
          * ServiceResponse
          * @description Schema for service data.
          */
@@ -414,20 +442,6 @@ export interface components {
             phone: string;
             /** Appointmentcount */
             appointmentCount: number;
-            /** Revenue */
-            revenue: number;
-        };
-        /**
-         * TopServiceResponse
-         * @description Schema for top service item.
-         */
-        TopServiceResponse: {
-            /** Id */
-            id: string;
-            /** Name */
-            name: string;
-            /** Count */
-            count: number;
             /** Revenue */
             revenue: number;
         };

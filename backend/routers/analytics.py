@@ -15,7 +15,8 @@ from db.models import (
     Provider,
 )
 from schemas.analytics import (
-    TopServiceResponse,
+    ServiceByRevenueResponse,
+    ServiceByBookingsResponse,
     PatientAnalyticsResponse,
     BusinessAnalyticsResponse,
     TopProviderResponse,
@@ -164,33 +165,43 @@ def get_business_analytics(db: Session = Depends(get_db)):
     """
     Get consolidated business analytics including services and appointments.
     """
-    # Top services by count and revenue
-    top_services_query = (
+    # Top 10 services by revenue: Service JOIN Payment, SUM(amount), GROUP BY service_id, ORDER DESC
+    top_by_revenue_query = (
+        db.query(
+            Service.id,
+            Service.name,
+            func.sum(Payment.amount).label("revenue"),
+        )
+        .join(Payment, Service.id == Payment.service_id)
+        .filter(Payment.status == "paid")
+        .group_by(Service.id, Service.name)
+        .order_by(func.sum(Payment.amount).desc())
+        .limit(10)
+        .all()
+    )
+
+    top_services_by_revenue = [
+        ServiceByRevenueResponse(id=service_id, name=name, revenue=revenue)
+        for service_id, name, revenue in top_by_revenue_query
+    ]
+
+    # Top 10 services by bookings: Service INNER JOIN AppointmentService, COUNT(*), GROUP BY service_id, ORDER DESC
+    top_by_bookings_query = (
         db.query(
             Service.id,
             Service.name,
             func.count(AppointmentService.appointment_id).label("count"),
-            func.coalesce(func.sum(Payment.amount), 0).label("revenue"),
         )
-        .outerjoin(AppointmentService, Service.id == AppointmentService.service_id)
-        .outerjoin(
-            Payment,
-            (Payment.service_id == Service.id) & (Payment.status == "paid"),
-        )
+        .join(AppointmentService, Service.id == AppointmentService.service_id)
         .group_by(Service.id, Service.name)
         .order_by(func.count(AppointmentService.appointment_id).desc())
         .limit(10)
         .all()
     )
 
-    top_services = [
-        TopServiceResponse(
-            id=service_id,
-            name=name,
-            count=count,
-            revenue=revenue,
-        )
-        for service_id, name, count, revenue in top_services_query
+    top_services_by_bookings = [
+        ServiceByBookingsResponse(id=service_id, name=name, count=count)
+        for service_id, name, count in top_by_bookings_query
     ]
 
     # Total revenue (paid payments only)
@@ -240,7 +251,8 @@ def get_business_analytics(db: Session = Depends(get_db)):
     }
 
     return BusinessAnalyticsResponse(
-        topServices=top_services,
+        topServicesByRevenue=top_services_by_revenue,
+        topServicesByBookings=top_services_by_bookings,
         totalRevenue=total_revenue,
         averagePayment=average_payment,
         totalCustomers=total_customers,
@@ -382,37 +394,47 @@ def get_patient_behavior_analytics(db: Session = Depends(get_db)):
         }
     )
 
-    # Top services booked by patients
-    # Join appointments -> appointment_services -> services
-    top_services_query = (
+    # Top 10 services by revenue: Service JOIN Payment, SUM(amount), GROUP BY service_id, ORDER DESC
+    top_by_revenue_query = (
+        db.query(
+            Service.id,
+            Service.name,
+            func.sum(Payment.amount).label("revenue"),
+        )
+        .join(Payment, Service.id == Payment.service_id)
+        .filter(Payment.status == "paid")
+        .group_by(Service.id, Service.name)
+        .order_by(func.sum(Payment.amount).desc())
+        .limit(10)
+        .all()
+    )
+
+    top_services_by_revenue = [
+        ServiceByRevenueResponse(id=service_id, name=name, revenue=revenue)
+        for service_id, name, revenue in top_by_revenue_query
+    ]
+
+    # Top 10 services by bookings: Service INNER JOIN AppointmentService, COUNT(*), GROUP BY service_id, ORDER DESC
+    top_by_bookings_query = (
         db.query(
             Service.id,
             Service.name,
             func.count(AppointmentService.appointment_id).label("count"),
-            func.coalesce(func.sum(Payment.amount), 0).label("revenue"),
         )
-        .outerjoin(AppointmentService, Service.id == AppointmentService.service_id)
-        .outerjoin(
-            Payment,
-            (Payment.service_id == Service.id) & (Payment.status == "paid"),
-        )
+        .join(AppointmentService, Service.id == AppointmentService.service_id)
         .group_by(Service.id, Service.name)
         .order_by(func.count(AppointmentService.appointment_id).desc())
         .limit(10)
         .all()
     )
 
-    top_services = [
-        TopServiceResponse(
-            id=service_id,
-            name=name,
-            count=count,
-            revenue=revenue,
-        )
-        for service_id, name, count, revenue in top_services_query
+    top_services_by_bookings = [
+        ServiceByBookingsResponse(id=service_id, name=name, count=count)
+        for service_id, name, count in top_by_bookings_query
     ]
 
     return PatientBehaviorResponse(
         patientsByAppointmentCount=patients_by_appointment_count,
-        topServicesByPatients=top_services,
+        topServicesByRevenue=top_services_by_revenue,
+        topServicesByBookings=top_services_by_bookings,
     )

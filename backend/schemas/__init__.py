@@ -10,7 +10,8 @@ from schemas.patient import (
 )
 from schemas.provider import ProviderResponse, ProviderListResponse
 from schemas.analytics import (
-    TopServiceResponse,
+    ServiceByRevenueResponse,
+    ServiceByBookingsResponse,
     PatientAnalyticsResponse,
     BusinessAnalyticsResponse,
 )
@@ -25,7 +26,8 @@ __all__ = [
     "PaymentResponse",
     "ProviderResponse",
     "ProviderListResponse",
-    "TopServiceResponse",
+    "ServiceByRevenueResponse",
+    "ServiceByBookingsResponse",
     "PatientAnalyticsResponse",
     "BusinessAnalyticsResponse",
     "PaginatedResponse",

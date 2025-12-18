@@ -3,13 +3,20 @@
 from pydantic import BaseModel
 
 
-class TopServiceResponse(BaseModel):
-    """Schema for top service item."""
+class ServiceByRevenueResponse(BaseModel):
+    """Schema for service ranked by revenue."""
+
+    id: str
+    name: str
+    revenue: int
+
+
+class ServiceByBookingsResponse(BaseModel):
+    """Schema for service ranked by booking count."""
 
     id: str
     name: str
     count: int
-    revenue: int
 
 
 class PatientAnalyticsResponse(BaseModel):
@@ -27,8 +34,9 @@ class PatientAnalyticsResponse(BaseModel):
 class BusinessAnalyticsResponse(BaseModel):
     """Consolidated schema for business analytics (services + appointments)."""
 
-    # Services
-    topServices: list[TopServiceResponse]
+    # Services - separate lists for revenue and bookings
+    topServicesByRevenue: list[ServiceByRevenueResponse]
+    topServicesByBookings: list[ServiceByBookingsResponse]
     totalRevenue: int
     averagePayment: int
     totalCustomers: int
@@ -61,5 +69,6 @@ class PatientBehaviorResponse(BaseModel):
 
     # Distribution of patients by number of appointments (all statuses)
     patientsByAppointmentCount: dict[str, int]
-    # Top services booked by patients (all appointments)
-    topServicesByPatients: list[TopServiceResponse]
+    # Top services - separate lists for revenue and bookings
+    topServicesByRevenue: list[ServiceByRevenueResponse]
+    topServicesByBookings: list[ServiceByBookingsResponse]
