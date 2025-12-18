@@ -136,8 +136,8 @@ export interface paths {
         /**
          * Get Patient Behavior Analytics
          * @description Get patient behavior patterns including:
-         *     - Distribution of patients by number of confirmed appointments
-         *     - Top services booked by patients with confirmed appointments
+         *     - Distribution of patients by number of appointments (all statuses)
+         *     - Top services booked by patients (all appointments)
          */
         get: operations["get_patient_behavior_analytics_api_analytics_patient_behavior_get"];
         put?: never;
