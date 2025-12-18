@@ -146,3 +146,17 @@ While this project is a complete MVP for Beauty Med Spa, there are still some ar
 - Adding logging and monitoring to the backend
 - Adding rate limiting to the backend
 - Adding Asynchronous Support to the SQLAlchemy queries to perform batch operations concurrently
+
+# Changes made after Submission
+
+Some changes were flagged by Kevin before review so to be transparent/for convenience I am logging the commits made after submission.
+
+## Commit-wise
+
+- Last commit before submission: b509caae6453b1fa3a0d7713581923f0efa5d99c (📝 Add TODOs to README)
+- First commit after submission: 6403a9bcb4904e97d5eb95cde0a9438fba5a4b7f (🔧 Allow 3001 ports)
+
+## What changed
+
+- There was a bug with calculating top services by revenue and bookings. This was because we were using a cartesian product (outer join) when joining the AppointmentService and Payment tables, so multiple rows were being returned for each service &rarr; each row was being counted twice.
+- Fixed this by splitting query into 2 separate queries, one for top 10 by # of bookings, and one for top 10 by revenue. The UI reflects this change with 2 new bar graphs in the Patient Behaviour card.
